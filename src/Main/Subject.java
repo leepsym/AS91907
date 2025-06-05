@@ -1,16 +1,27 @@
+package Main;
+
 import java.util.ArrayList;
 
 public class Subject {
     boolean infected = false; // If the subject is infected
     boolean infectable = true; // If the subject is immune or not
 
-    ArrayList<Infection> infectionCount; // Times this subject has infected another subject
-    ArrayList<Infection> infectCount; // Times this subject has been infected
+    ArrayList<Infection> infectionCount = new ArrayList<>(); // Times this subject has infected another subject
+    ArrayList<Infection> infectCount = new ArrayList<>(); // Times this subject has been infected
 
     int[] location = new int[2]; // Where the subject is located
 
+    public Subject() {
+        location[0] = (int) (Math.random() * Simulation.size[0]);
+        location[1] = (int) (Math.random() * Simulation.size[1]);
+    }
+
     public void infect(Subject source) {
-        if (!infected && infectable) Simulation.addInfection(location, this, source); Simulation.infected++;
+        if (!infected && infectable) Simulation.addInfection(location, this, source);
+    }
+
+    public void startInfected() {
+        Simulation.addInfection(location, this, this);
     }
 
     public void handleInfection() {

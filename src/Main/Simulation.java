@@ -1,31 +1,49 @@
+package Main;
+
+import Graphics.Visualisation;
+import Graphics.Window;
+
 import java.util.ArrayList;
 
 public class Simulation {
-    static int simulationXSize;
-    static int simulationYSize;
-    static int populationSize;
-    static int startingInfected;
-    static int infectChance;
-    static int infectDuration;
-    static int immunityDuration;
-    static int maxRuntime;
-    static int[] size;
+    // Parameters
+
+    static int populationSize = 30; // Number of subjects in the simulation
+    static int startingInfected = 1; // Number of beginning infected subjects
+    static int infectChance = 70; // Percent chance of infection upon contact
+    static int infectDuration = 10; // Rounds that subject stays infected for
+    static int immunityDuration = 10; // Rounds that subject stays immune for
+    static int maxRuntime = 200; // Maximum rounds in the simulation
+    public static int[] size = new int[2]; // Area that the simulation will run in
 
     // Statistics
-    static int round;
-    static int infected = startingInfected;
+    static int round = 0;
+    static int infected = 0;
     static int immune = 0;
-
     static ArrayList<Infection> infections = new ArrayList<>();
-    static ArrayList<Subject> population = new ArrayList<>();
+    public static ArrayList<Subject> population = new ArrayList<>();
+
+    // Other
+    static Window window = new Window(1250, 750);
+    static Visualisation visualisation = new Visualisation();
 
 
     public static void main (String[] args) {
+        size[0] = 100;
+        size[1] = 100;
 
-
-        while (infected < populationSize && round < maxRuntime) {
-            simulateRound();
+        for (int i = 0; i < populationSize; i++) {
+            population.add(new Subject());
         }
+
+        for (int i = 0; i < startingInfected; i++) {
+            population.get(i).startInfected();
+        }
+
+
+        //while (infected < populationSize && round < maxRuntime) {
+        //    simulateRound();
+        //}
     }
 
     public static void userParameters() {
@@ -55,6 +73,7 @@ public class Simulation {
         subject.infectCount.add(infection);
         source.infectionCount.add(infection);
 
+        infected++;
     }
 
     public static void simulateContact(ArrayList<Subject> subjects) {
