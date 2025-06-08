@@ -16,8 +16,13 @@ public class Window extends JFrame {
     private final JMenuBar bar = new JMenuBar();
     private final Container content = getContentPane();
     public Window(int width, int height) {
-        setTitle("AS91907 | Virus Simulator");
+        this();
         setSize(width, height);
+        setTitle("AS91907 | Virus Simulator Statistics");
+    }
+
+    public Window(){
+        setTitle("AS91907 | Virus Simulator");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         setLayout(new GridBagLayout());

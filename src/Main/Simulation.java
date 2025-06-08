@@ -22,15 +22,18 @@ public class Simulation {
     static int immune = 0;
     static ArrayList<Infection> infections = new ArrayList<>();
     public static ArrayList<Subject> population = new ArrayList<>();
+    public static ArrayList<Subject>[][] board = new ArrayList[size[0]][size[1]];
 
     // Other
     static Window window = new Window(1250, 750);
-    static Visualisation visualisation = new Visualisation();
+    static Visualisation visualisation;
 
 
     public static void main (String[] args) {
         size[0] = 100;
         size[1] = 100;
+
+        visualisation = new Visualisation();
 
         for (int i = 0; i < populationSize; i++) {
             population.add(new Subject());
@@ -38,6 +41,13 @@ public class Simulation {
 
         for (int i = 0; i < startingInfected; i++) {
             population.get(i).startInfected();
+        }
+
+
+        for (Subject current : population) {
+            current.move();
+            current.handleInfection();
+            board[current.location[0]][current.location[1]].add(current);
         }
 
 
@@ -51,7 +61,14 @@ public class Simulation {
     }
 
     public static void simulateRound() {
-        ArrayList<Subject>[][] board = new ArrayList[size[0]][size[1]];
+
+        for (int i = 0; i <= size[0]; i++) {
+            for (int j = 0; j <= size[1]; j++) {
+                simulateContact(board[i][j]);
+            }
+        }
+
+        board = new ArrayList[size[0]][size[1]];
 
         for (Subject current : population) {
             current.move();
@@ -59,11 +76,7 @@ public class Simulation {
             board[current.location[0]][current.location[1]].add(current);
         }
 
-        for (int i = 0; i <= size[0]; i++) {
-            for (int j = 0; j <= size[1]; j++) {
-                simulateContact(board[i][j]);
-            }
-        }
+        Visualisation.visualiseRound();
     }
 
     public static void addInfection(int[] location, Subject subject, Subject source) {

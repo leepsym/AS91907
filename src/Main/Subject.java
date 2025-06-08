@@ -3,8 +3,8 @@ package Main;
 import java.util.ArrayList;
 
 public class Subject {
-    boolean infected = false; // If the subject is infected
-    boolean infectable = true; // If the subject is immune or not
+    public boolean infected = false; // If the subject is infected
+    public boolean infectable = true; // If the subject is immune or not
 
     ArrayList<Infection> infectionCount = new ArrayList<>(); // Times this subject has infected another subject
     ArrayList<Infection> infectCount = new ArrayList<>(); // Times this subject has been infected
