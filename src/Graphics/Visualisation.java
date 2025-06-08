@@ -4,16 +4,28 @@ import Main.Simulation;
 import Main.Subject;
 
 import java.awt.*;
+import java.awt.geom.*;
 import java.util.ArrayList;
 
 public class Visualisation {
-    private Window window = new Window(750, 750);
+    private final Window window = new Window(1050, 1050);
+
     public Visualisation() {
-        for (int i = 0; i < 100; i++) {
-            for (int j = 0; j < 100; j++) {
-                window.label(":3", window.constraints(i, j, 1, 1), window.border(Color.BLACK, 1));
+        Container contentPane = new Container() {
+            public void paint(Graphics g) {
+                super.paint(g);
+                Graphics2D g2 = (Graphics2D) g;
+
+                g2.setColor(Color.BLACK);
+
+                for (int i = 0; i < 100; i++) {
+                    g2.draw(new Line2D.Float(i * 10, 0, i * 10, 1000));
+                    g2.draw(new Line2D.Float(0, i * 10, 1000, i * 10));
+                }
             }
-        }
+        };
+
+        window.setContentPane(contentPane);
     }
 
 

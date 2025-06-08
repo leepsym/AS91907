@@ -21,6 +21,7 @@ public class Window extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         setLayout(new GridBagLayout());
+        setResizable(false);
 
         setVisible(true);
     }
