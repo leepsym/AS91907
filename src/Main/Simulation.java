@@ -4,6 +4,7 @@ import Graphics.Visualisation;
 import Graphics.Window;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class Simulation {
     // Parameters
@@ -44,16 +45,14 @@ public class Simulation {
         }
 
 
-        for (Subject current : population) {
-            current.move();
-            current.handleInfection();
-            board[current.location[0]][current.location[1]].add(current);
+        while (infected < populationSize && round < maxRuntime) {
+            simulateRound();
+            try {
+                TimeUnit.SECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
-
-
-        //while (infected < populationSize && round < maxRuntime) {
-        //    simulateRound();
-        //}
     }
 
     public static void userParameters() {
@@ -61,6 +60,12 @@ public class Simulation {
     }
 
     public static void simulateRound() {
+
+        for (Subject current : population) {
+            current.move();
+            current.handleInfection();
+            board[current.location[0]][current.location[1]].add(current);
+        }
 
         for (int i = 0; i <= size[0]; i++) {
             for (int j = 0; j <= size[1]; j++) {

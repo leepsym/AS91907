@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 public class Visualisation {
     private final Window window = new Window();
+    public static ArrayList<Pixel> pixelStack = new ArrayList<>();
 
     static Container contentPane = new Container() {
         public void paint(Graphics g) {
@@ -26,26 +27,6 @@ public class Visualisation {
             for (int i = 0; i <= Simulation.size[1]; i++) {
                 g2.draw(new Line2D.Float(0, top(i), width, top(i)));
             }
-        }
-
-        public int top(int y) {
-            return y * 10;
-        }
-
-        public int bottom(int y) {
-            return top(y + 1);
-        }
-
-        public int left(int x) {
-            return x * 10;
-        }
-
-        public int right(int x) {
-            return left(x + 1);
-        }
-
-        public void mystery(int i, int j, int x, int y, int state) {
-
         }
     };
 
@@ -72,15 +53,23 @@ public class Visualisation {
                 }
                 int k = 0;
                 for (; k < count[i][j][0]; k ++) {
-                    contentPane.mystery(i, j, k % 9, (k / 9) % 9, 0);
+                    Visualisation.pixelStack.add(new Pixel(i + top(k % 9), j + left((k / 9) % 9), Color.red));
                 }
                 for (; k < count[i][j][0] + count[i][j][1]; k ++) {
-                    mystery(i, j, k % 9, (k / 9) % 9, 1);
+                    Visualisation.pixelStack.add(new Pixel(i + top(k % 9), j + left((k / 9) % 9), Color.green));
                 }
                 for (; k < count[i][j][0] + count[i][j][1] + count[i][j][2]; k ++) {
-                    mystery(i, j, k % 9, (k / 9) % 9, 2);
+                    Visualisation.pixelStack.add(new Pixel(i + top(k % 9), j + left((k / 9) % 9), Color.gray));
                 }
             }
         }
     }
+
+    public static int top(int y) {return y * 10;}
+    public static int bottom(int y) {return top(y + 1);}
+    public static int left(int x) {return x * 10;}
+    public static int right(int x) {return left(x + 1);}
+
+    private record Pixel(int x, int y, Color colour) {}
+
 }
