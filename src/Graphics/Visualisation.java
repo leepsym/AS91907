@@ -31,23 +31,11 @@ public class Visualisation {
 
         // Prepares grid drawing
         g2.setColor(Color.BLACK);
-        int width = simContentPane.getWidth() - 1;
-        int height = simContentPane.getHeight() - 1;
-
-        // Draws grid lines on the y-axis
-        for (int i = 0; i <= Simulation.size[0]; i++) {
-            g2.draw(new Line2D.Float(i * 10, 0, i * 10, height));
-        }
-
-        // Draws grid lines on the x-axis
-        for (int i = 0; i <= Simulation.size[1]; i++) {
-            g2.draw(new Line2D.Float(0, i * 10, width, i * 10));
-        }
 
         // Fills in boxes depending on the majority type of subject there
         for(Pixel pixel : pixelQueue) {
             g2.setColor(pixel.colour);
-            g2.fillRect(pixel.x * 10 + 1, pixel.y * 10 + 1, 9, 9);
+            g2.fillRect(pixel.x * 10, pixel.y * 10, 10, 10);
         }
     }
 
@@ -61,7 +49,8 @@ public class Visualisation {
     public Visualisation() {
         pie = new PieChart();
         sim.setContentPane(simContentPane);
-        simContentPane.setPreferredSize(new Dimension(Simulation.size[0] * 10 + 1, Simulation.size[1] * 10 + 1));
+        stats.setContentPane(statsContentPane);
+        simContentPane.setPreferredSize(new Dimension(Simulation.size[0] * 10, Simulation.size[1] * 10));
         sim.setSize(sim.getPreferredSize());
     }
 
@@ -103,7 +92,7 @@ public class Visualisation {
             }
         }
         render();
-        pie.render(totalCount, null);
+        pie.render(totalCount);
     }
 
     private void visualiseStats() {
@@ -124,15 +113,12 @@ public class Visualisation {
             Color.GRAY
         };
         public PieChart() {
-            super(30, 30, TYPE_INT_ARGB);
+            super(100, 100, TYPE_INT_ARGB);
         }
 
+        // http://cs111.wellesley.edu/archive/cs111_fall05/public_html/labs/lab6/arc.html
         public void render(int[] nums) {
-            float totalNum = 0,  startAngle = 0, arcAngle = 0;
-
-            for (int num : nums) totalNum += num;
-
-            for (int i = 0; i < 3; i++) {
+            for (int num : nums) {
 
             }
         }

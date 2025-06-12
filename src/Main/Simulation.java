@@ -7,12 +7,13 @@ import java.util.concurrent.TimeUnit;
 
 public class Simulation {
     // Base Parameters
-    static int populationSize = 100000;
+    static int populationSize = 300000;
     static int startingInfected = 1;
-    static int infectChance = 75;
-    static int infectDuration = 30;
-    static int immunityDuration = 15;
-    static int maxRuntime = -1;
+    static int infectChance = 30;
+    static int infectDuration = 8;
+    static int immunityDuration = 20;
+    static int maxRuntime = -1; // Infinite runtime
+
     public static int[] size = new int[2];
 
     // Statistics trackers
@@ -29,8 +30,8 @@ public class Simulation {
     static Visualisation visualisation;
 
     public static void main(String[] args) {
-        size[0] = 100;
-        size[1] = 100;
+        size[0] = 400;
+        size[1] = 125;
 
         visualisation = new Visualisation();
         initializeBoard();

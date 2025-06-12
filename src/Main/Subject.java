@@ -45,7 +45,7 @@ public class Subject {
     }
 
     public void move() {
-        int direction = (int) (Math.random() * 4);
+        int direction = (int) (Math.random() * 5);
 
         switch (direction) {
             case 0: // Move right
@@ -67,6 +67,8 @@ public class Subject {
                 if (location[1] > 0) {
                     location[1]--;
                 }
+                break;
+            case 4: // Dont move
                 break;
         }
     }
