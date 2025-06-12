@@ -9,10 +9,10 @@ public class Simulation {
     // Base Parameters
     static int populationSize = 100000;
     static int startingInfected = 1;
-    static int infectChance = 50;
-    static int infectDuration = 2;
-    static int immunityDuration = 2;
-    static int maxRuntime = 1000000;
+    static int infectChance = 75;
+    static int infectDuration = 30;
+    static int immunityDuration = 15;
+    static int maxRuntime = -1;
     public static int[] size = new int[2];
 
     // Statistics trackers
@@ -46,12 +46,12 @@ public class Simulation {
         }
 
         // Main simulation loop
-        while (infected > 0 && infected < populationSize && round < maxRuntime) {
+        while (infected > 0 && infected < populationSize - immune && round != maxRuntime ) {
             simulateRound();
             round++;
 
             try {
-                TimeUnit.MILLISECONDS.sleep(1); // Change to user preference
+                TimeUnit.MILLISECONDS.sleep(10); // Change to user preference
             } catch (InterruptedException ignored) {}
         }
     }
