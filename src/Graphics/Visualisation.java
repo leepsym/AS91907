@@ -17,6 +17,7 @@ public class Visualisation {
 
     static BufferedImage offScreenImage;
     static PieChart pie;
+    static int[][] angles = new int[3][2];
 
     public static Container simContentPane = new Container() {
         public void paint(Graphics g) {
@@ -42,16 +43,32 @@ public class Visualisation {
     public static Container statsContentPane = new Container(){
         public void paint(Graphics g) {
             super.paint(g);
-            g.drawImage(pie, 0, 0, null);
+            g.setColor(Color.black);
+            g.drawOval(0, 0, 300, 300);
+
+            g.setColor(Color.red);
+            g.fillArc(0, 0, 300, 300, angles[0][0], angles[0][1]);
+
+            g.setColor(Color.green);
+            g.fillArc(0, 0, 300, 300, angles[1][0], angles[1][1]);
+
+            g.setColor(Color.darkGray);
+            g.fillArc(0, 0, 300, 300, angles[2][0], angles[2][1]);
         }
     };
 
     public Visualisation() {
         pie = new PieChart();
+
         sim.setContentPane(simContentPane);
         stats.setContentPane(statsContentPane);
+
+
         simContentPane.setPreferredSize(new Dimension(Simulation.size[0] * 10, Simulation.size[1] * 10));
+        statsContentPane.setPreferredSize(new Dimension(1500, 1000));
         sim.setSize(sim.getPreferredSize());
+        stats.setSize(stats.getPreferredSize());
+
     }
 
 
@@ -72,21 +89,19 @@ public class Visualisation {
                         count[i][j][2]++;
                     }
                 }
-                int k = count[i][j][0];
-                int m = count[i][j][1];
-                int n = count[i][j][2];
+                int k = count[i][j][0]; // Infected
+                int m = count[i][j][1]; // Infectable
+                int n = count[i][j][2]; // Immune
 
                 totalCount[0] += k;
                 totalCount[1] += m;
                 totalCount[2] += n;
 
-                if (k > m) {
-                    if (k > n) {
-                        pixelQueue.add(new Pixel(i, j, Color.red));
-                    }
-                } else if (m > n) {
+                if (k > 0) {
+                    pixelQueue.add(new Pixel(i, j, Color.red));
+                } else if (m > 0) {
                     pixelQueue.add(new Pixel(i, j, Color.GREEN));
-                } else if (n > m){
+                } else if (n > 0){
                     pixelQueue.add(new Pixel(i, j, Color.GRAY));
                 }
             }
@@ -118,9 +133,29 @@ public class Visualisation {
 
         // http://cs111.wellesley.edu/archive/cs111_fall05/public_html/labs/lab6/arc.html
         public void render(int[] nums) {
-            for (int num : nums) {
+            int total = nums[0] + nums[1] + nums[2];
 
-            }
+
+            double angle1 = (double) nums[0] / total * 360;
+            double angle2 = (double) nums[1] / total * 360;
+            double angle3 = (double) nums[2] / total * 360;
+
+
+            angles[0][0] = 0;
+            System.out.println(angles[0][0]);
+            angles[0][1] = (int) angle1;
+            System.out.println(angles[0][1]);
+
+            angles[1][0] = (int) angle1;
+            System.out.println(angles[1][0]);
+            angles[1][1] = (int) angle2;
+            System.out.println(angles[1][1]);
+
+            angles[2][0] = (int) (angle1 + angle2);
+            System.out.println(angles[2][0]);
+            angles[2][1] = (int) angle3;
+            System.out.println(angles[2][1]);
+
         }
     }
 }
