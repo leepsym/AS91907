@@ -43,8 +43,6 @@ public class Visualisation {
     public static Container statsContentPane = new Container(){
         public void paint(Graphics g) {
             super.paint(g);
-            g.setColor(Color.black);
-            g.drawOval(0, 0, 300, 300);
 
             g.setColor(Color.red);
             g.fillArc(0, 0, 300, 300, angles[0][0], angles[0][1]);
@@ -131,31 +129,25 @@ public class Visualisation {
             super(100, 100, TYPE_INT_ARGB);
         }
 
-        // http://cs111.wellesley.edu/archive/cs111_fall05/public_html/labs/lab6/arc.html
         public void render(int[] nums) {
             int total = nums[0] + nums[1] + nums[2];
 
+            if (total == 0) return; // Avoid division by zero
 
-            double angle1 = (double) nums[0] / total * 360;
-            double angle2 = (double) nums[1] / total * 360;
-            double angle3 = (double) nums[2] / total * 360;
+            // Calculate angles as integers (avoiding truncation issues)
+            int angle1 = (int) Math.round((double) nums[0] / total * 360);
+            int angle2 = (int) Math.round((double) nums[1] / total * 360);
+            int angle3 = 360 - angle1 - angle2; // Ensure total is exactly 360
 
+            // Set starting angles and arc lengths
+            angles[0][0] = 0;           // Start at 0 degrees
+            angles[0][1] = angle1;      // Arc length for infected (red)
 
-            angles[0][0] = 0;
-            System.out.println(angles[0][0]);
-            angles[0][1] = (int) angle1;
-            System.out.println(angles[0][1]);
+            angles[1][0] = angle1;      // Start where first arc ended
+            angles[1][1] = angle2;      // Arc length for susceptible (green)
 
-            angles[1][0] = (int) angle1;
-            System.out.println(angles[1][0]);
-            angles[1][1] = (int) angle2;
-            System.out.println(angles[1][1]);
-
-            angles[2][0] = (int) (angle1 + angle2);
-            System.out.println(angles[2][0]);
-            angles[2][1] = (int) angle3;
-            System.out.println(angles[2][1]);
-
+            angles[2][0] = angle1 + angle2;  // Start where second arc ended
+            angles[2][1] = angle3;      // Arc length for immune (gray)
         }
     }
 }

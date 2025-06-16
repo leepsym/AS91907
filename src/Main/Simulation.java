@@ -7,10 +7,10 @@ import java.util.concurrent.TimeUnit;
 
 public class Simulation {
     // Base Parameters
-    static int populationSize = 500000;
+    static int populationSize = 100000;
     static int startingInfected = 1;
     static int infectChance = 75;
-    static int infectDuration = 4;
+    static int infectDuration = 2;
     static int immunityDuration = 8;
     static int maxRuntime = -1; // Infinite runtime
 
@@ -31,7 +31,7 @@ public class Simulation {
 
     public static void main(String[] args) {
         size[0] = 100;
-        size[1] = 10;
+        size[1] = 100;
 
         visualisation = new Visualisation();
         initializeBoard();
@@ -95,6 +95,7 @@ public class Simulation {
         Visualisation.pixelQueue.clear(); // Clear previous pixels
         Visualisation.visualiseRound();
         Visualisation.simContentPane.repaint();
+        Visualisation.statsContentPane.repaint(); // Add this line!
     }
 
     public static void addInfection(int[] location, Subject subject, Subject source) {
