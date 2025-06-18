@@ -9,15 +9,15 @@ public class Simulation {
     // Base Parameters
     static int populationSize = 100000;
     static int startingInfected = 1;
-    static int infectChance = 75;
-    static int infectDuration = 2;
-    static int immunityDuration = 8;
+    static int infectChance = 80;
+    static int infectDuration = 5;
+    static int immunityDuration = 25;
     static int maxRuntime = -1; // Infinite runtime
 
     public static int[] size = new int[2];
 
     // Statistics trackers
-    static int round = 0;
+    public static int round = 0;
     static int infected = 0;
     static int immune = 0;
 
@@ -92,10 +92,10 @@ public class Simulation {
         }
 
         // Update visualization
-        Visualisation.pixelQueue.clear(); // Clear previous pixels
+        Visualisation.pixelQueue.clear();
         Visualisation.visualiseRound();
         Visualisation.simContentPane.repaint();
-        Visualisation.statsContentPane.repaint(); // Add this line!
+        Visualisation.statsContentPane.repaint();
     }
 
     public static void addInfection(int[] location, Subject subject, Subject source) {
