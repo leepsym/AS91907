@@ -10,8 +10,6 @@ public class Subject {
     ArrayList<Infection> infectCount = new ArrayList<>();
 
     int[] location = new int[2];
-    private int recoveryRound = -1;
-    private int reinfectionRound = -1;
 
     public Subject() {
         location[0] = (int) (Math.random() * Simulation.size[0]);
@@ -29,23 +27,19 @@ public class Subject {
     }
 
     public void handleInfection() {
-        if (infected) {
-            if (recoveryRound == -1) {
-                recoveryRound = Simulation.round + Simulation.infectDuration;
-                reinfectionRound = recoveryRound + Simulation.immunityDuration;
-            }
-
-            if (Simulation.round >= recoveryRound) {
+        if (infected && !infectCount.isEmpty()) {
+            // Check if infection duration has passed
+            if (Simulation.round >= infectCount.getLast().round() + Simulation.infectDuration) {
                 infected = false;
+                Simulation.infected--;
                 infectable = false;
-                recoveryRound = -1;
-                Simulation.updateStats(this, "recovered");
+                Simulation.immune++;
             }
-        } else if (!infectable) {
-            if (Simulation.round >= reinfectionRound) {
+        } else if (!infectable && !infectCount.isEmpty()) {
+            // Check if immunity duration has passed
+            if (Simulation.round >= infectCount.getLast().round() + Simulation.infectDuration + Simulation.immunityDuration) {
                 infectable = true;
-                reinfectionRound = -1;
-                Simulation.updateStats(this, "susceptible_again");
+                Simulation.immune--;
             }
         }
     }
@@ -54,17 +48,27 @@ public class Subject {
         int direction = (int) (Math.random() * 5);
 
         switch (direction) {
-            case 0:
-                if (location[0] < Simulation.size[0] - 1) location[0]++;
+            case 0: // Move right
+                if (location[0] < Simulation.size[0] - 1) {
+                    location[0]++;
+                }
                 break;
-            case 1:
-                if (location[1] < Simulation.size[1] - 1) location[1]++;
+            case 1: // Move down
+                if (location[1] < Simulation.size[1] - 1) {
+                    location[1]++;
+                }
                 break;
-            case 2:
-                if (location[0] > 0) location[0]--;
+            case 2: // Move left
+                if (location[0] > 0) {
+                    location[0]--;
+                }
                 break;
-            case 3:
-                if (location[1] > 0) location[1]--;
+            case 3: // Move up
+                if (location[1] > 0) {
+                    location[1]--;
+                }
+                break;
+            case 4: // Dont move
                 break;
         }
     }
