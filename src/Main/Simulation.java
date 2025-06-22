@@ -1,18 +1,19 @@
 package Main;
 
 import Graphics.Visualisation;
+import Graphics.Window;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class Simulation {
     // Base Parameters
-    static int populationSize = 100000;
-    static int startingInfected = 1;
-    static int infectChance = 80;
-    static int infectDuration = 5;
-    static int immunityDuration = 25;
-    static int maxRuntime = -1; // Infinite runtime
+    public static int populationSize = 50000;
+    public static int startingInfected = 1;
+    public static int infectChance = 32;
+    public static int infectDuration = 4;
+    public static int immunityDuration = 16;
+    public static int maxRuntime = -1; // Infinite runtime
 
     public static int[] size = new int[2];
 
@@ -28,10 +29,13 @@ public class Simulation {
 
     // Other
     static Visualisation visualisation;
+    private static final Window sim = new Window();
 
     public static void main(String[] args) {
-        size[0] = 100;
-        size[1] = 100;
+        size[0] = 50;
+        size[1] = 50;
+
+
 
         visualisation = new Visualisation();
         initializeBoard();

@@ -1,13 +1,8 @@
 package Graphics;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
+import Main.Simulation;
+
+import javax.swing.*;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -15,7 +10,8 @@ import java.awt.Insets;
 import java.awt.event.ActionListener;
 
 public class Window extends JFrame {
-    private final JMenuBar bar = new JMenuBar();
+    private static String input;
+    private static boolean check;
     private final Container content = getContentPane();
     public Window(int width, int height) {
         this();
@@ -34,13 +30,24 @@ public class Window extends JFrame {
     }
     public void buttonQuery(String question, Option[] options) {
         reset();
-        label(question, constraints(0,0,options.length,1), null);
+        label(question, constraints(0,0,options.length,1));
         for (int i = 0; i < options.length; i++) {
             Option o = options[i];
             JButton b = new JButton(o.text());
             b.addActionListener(o.action());
             add(b, constraints(i, 1, 1, 1));
         }
+        revalidate();
+    }
+
+    public void textFieldQuery(String question, ActionListener action) {
+        reset();
+        label(question, constraints(0,0,1,1));
+        JTextField textField = textField("", constraints(0,1,1,1));
+        textField.addActionListener(l -> {
+            input = textField.getText();
+            action.actionPerformed(null);
+        });
         revalidate();
     }
 
@@ -55,26 +62,45 @@ public class Window extends JFrame {
                 1,1, GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(0, 0, 0, 0),0,0);
     }
 
-    public static LineBorder border(Color colour, int size) {
-        return new LineBorder(colour, size);
-    }
-
-    public void label(String text, GridBagConstraints constraints, LineBorder border) {
+    public void label(String text, GridBagConstraints constraints) {
         JLabel label = new JLabel(text);
-        if (border != null) label.setBorder(border);
         label.setHorizontalAlignment(SwingConstants.CENTER);
         add(label, constraints);
-    }
-
-    public void button(String text, ActionListener action, GridBagConstraints constraints) {
-        JButton button = new JButton(text);
-        button.addActionListener(action);
-        add(button, constraints);
     }
 
     public JTextField textField(String text, GridBagConstraints constraints) {
         JTextField textField = new JTextField(text);
         add(textField, constraints);
         return textField;
+    }
+
+    public void userParameters() {
+        int val = 0;
+        while (val != 0) val = check("How many cells wide should the simulation be? (enter a whole, positive number) (Leave blank for default)"); Simulation.size[0] = val; val = 0;
+        while (val != 0) val = check("How many cells high should the simulation be? (enter a whole, positive number) (Leave blank for default)"); Simulation.size[1] = val; val = 0;
+        while (val != 0) val = check("What should the population of the simulation be? (enter a whole, positive number) (leave blank for default)"); Simulation.populationSize = val; val = 0;
+        while (val != 0) val = check("How many subjects should start infected? (enter a whole, positive number) (leave blank for default)"); Simulation.startingInfected = val; val = 0;
+        while (val != 0) val = check("What should the chance of transmission be as a percentage? (enter a whole, positive number) (leave blank for default)"); Simulation.infectChance = val; val = 0;
+        while (val != 0) val = check("How long should subjects stay infected for? (enter a whole, positive number) (leave blank for default)"); Simulation.infectDuration = val; val = 0;
+        while (val != 0) val = check("How long should subjects stay immune for? (enter a whole, positive number) (leave blank for default)"); Simulation.immunityDuration = val; val = 0;
+        while (val != 0) val = check("How long should the simulation run for at a maximum? (enter -1 for infinite runtime) (enter a whole, positive number) (leave blank for default)"); Simulation.maxRuntime = val;
+    }
+
+    private int check(String query) {
+        textFieldQuery(query, l -> check = intCheck(input));
+        if (check) {
+            return Integer.parseInt(input);
+        } else {
+            check(query);
+            return 0;
+        }
+    }
+    
+    private boolean intCheck(String str) {
+        try {
+            return (Integer.parseInt(str) > 0);
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
     }
 }

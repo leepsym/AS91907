@@ -11,7 +11,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.lang.Float;
 import java.lang.Math;
-import java.lang.System;
 import java.util.ArrayList;
 
 public class Visualisation {
@@ -24,6 +23,10 @@ public class Visualisation {
     static ArrayList<Float[][]> uninfectedGraphValues;
     static ArrayList<Float[][]> immuneGraphValues;
     static ArrayList<Float[][]> infectedGraphValues;
+
+    static float infectedHeight;
+    static float uninfectedHeight;
+    static float immuneHeight;
 
     public static Container simContentPane = new Container() {
         public void paint(Graphics g) {
@@ -50,10 +53,6 @@ public class Visualisation {
         public void paint(Graphics g) {
             super.paint(g);
 
-            // Draw pie chart background
-            g.setColor(Color.WHITE);
-            g.fillOval(0, 0, 300, 300);
-
             // Draw infected slice (red)
             g.setColor(Color.red);
             g.fillArc(0, 0, 300, 300, angles[0][0], angles[0][1]);
@@ -66,6 +65,10 @@ public class Visualisation {
             g.setColor(Color.darkGray);
             g.fillArc(0, 0, 300, 300, angles[2][0], angles[2][1]);
 
+            // Draw pie chart background
+            g.setColor(Color.black);
+            g.drawOval(0, 0, 300, 300);
+
             // Draw stacked areas using smooth connecting lines
             if (infectedGraphValues.size() > 0) {
                 // Calculate cumulative heights for each time point
@@ -75,7 +78,7 @@ public class Visualisation {
                 int[] immuneTopY = new int[infectedGraphValues.size()];
 
                 for (int i = 0; i < infectedGraphValues.size(); i++) {
-                    xPoints[i] = 400 + (i * 10);
+                    xPoints[i] = 450 + (i * 10);
                     // Stack from bottom to top: immune (bottom), uninfected (middle), infected (top)
                     immuneTopY[i] = 300 - immuneGraphValues.get(i)[1][0].intValue();
                     uninfectedTopY[i] = immuneTopY[i] - uninfectedGraphValues.get(i)[1][0].intValue();
@@ -88,7 +91,7 @@ public class Visualisation {
                 int[] immuneYPoints = new int[immuneGraphValues.size() * 2 + 2];
 
                 // First point at bottom left
-                immuneXPoints[0] = 400;
+                immuneXPoints[0] = 450;
                 immuneYPoints[0] = 300;
 
                 // Draw top edge
@@ -98,12 +101,12 @@ public class Visualisation {
                 }
 
                 // Close to bottom right
-                immuneXPoints[immuneGraphValues.size() + 1] = 400 + (infectedGraphValues.size() - 1) * 10;
+                immuneXPoints[immuneGraphValues.size() + 1] = 450 + (infectedGraphValues.size() - 1) * 10;
                 immuneYPoints[immuneGraphValues.size() + 1] = 300;
 
                 // Draw bottom edge back to start
                 for (int i = 0; i < immuneGraphValues.size(); i++) {
-                    immuneXPoints[immuneGraphValues.size() + 2 + i] = 400 + (immuneGraphValues.size() - 1 - i) * 10;
+                    immuneXPoints[immuneGraphValues.size() + 2 + i] = 450 + (immuneGraphValues.size() - 1 - i) * 10;
                     immuneYPoints[immuneGraphValues.size() + 2 + i] = 300;
                 }
 
@@ -115,7 +118,7 @@ public class Visualisation {
                 int[] uninfectedYPoints = new int[uninfectedGraphValues.size() * 2 + 2];
 
                 // Start at bottom left of this layer
-                uninfectedXPoints[0] = 400;
+                uninfectedXPoints[0] = 450;
                 uninfectedYPoints[0] = immuneTopY[0];
 
                 // Draw top edge
@@ -125,12 +128,12 @@ public class Visualisation {
                 }
 
                 // Close to bottom right of this layer
-                uninfectedXPoints[uninfectedGraphValues.size() + 1] = 400 + (uninfectedGraphValues.size() - 1) * 10;
+                uninfectedXPoints[uninfectedGraphValues.size() + 1] = 450 + (uninfectedGraphValues.size() - 1) * 10;
                 uninfectedYPoints[uninfectedGraphValues.size() + 1] = immuneTopY[immuneGraphValues.size() - 1];
 
                 // Draw bottom edge back
                 for (int i = 0; i < uninfectedGraphValues.size(); i++) {
-                    uninfectedXPoints[uninfectedGraphValues.size() + 2 + i] = 400 + (uninfectedGraphValues.size() - 1 - i) * 10;
+                    uninfectedXPoints[uninfectedGraphValues.size() + 2 + i] = 450 + (uninfectedGraphValues.size() - 1 - i) * 10;
                     uninfectedYPoints[uninfectedGraphValues.size() + 2 + i] = immuneTopY[uninfectedGraphValues.size() - 1 - i];
                 }
 
@@ -142,7 +145,7 @@ public class Visualisation {
                 int[] infectedYPoints = new int[infectedGraphValues.size() * 2 + 2];
 
                 // Start at top left
-                infectedXPoints[0] = 400;
+                infectedXPoints[0] = 450;
                 infectedYPoints[0] = 0;
 
                 // Draw across top
@@ -152,17 +155,19 @@ public class Visualisation {
                 }
 
                 // Close to top right
-                infectedXPoints[infectedGraphValues.size() + 1] = 400 + (infectedGraphValues.size() - 1) * 10;
+                infectedXPoints[infectedGraphValues.size() + 1] = 450 + (infectedGraphValues.size() - 1) * 10;
                 infectedYPoints[infectedGraphValues.size() + 1] = 0;
 
                 // Draw bottom edge (top of uninfected layer)
                 for (int i = 0; i < infectedGraphValues.size(); i++) {
-                    infectedXPoints[infectedGraphValues.size() + 2 + i] = 400 + (infectedGraphValues.size() - 1 - i) * 10;
+                    infectedXPoints[infectedGraphValues.size() + 2 + i] = 450 + (infectedGraphValues.size() - 1 - i) * 10;
                     infectedYPoints[infectedGraphValues.size() + 2 + i] = uninfectedTopY[infectedGraphValues.size() - 1 - i];
                 }
 
                 g.fillPolygon(infectedXPoints, infectedYPoints, infectedGraphValues.size() * 2 + 2);
             }
+
+            int total = (int) (infectedHeight + immuneHeight + uninfectedHeight) / 100;
 
             // Add legend
             g.setColor(Color.BLACK);
@@ -170,18 +175,26 @@ public class Visualisation {
 
             g.setColor(Color.red);
             g.fillRect(950, 60, 20, 15);
+            g.fillRect(310, 80, 20, 15);
             g.setColor(Color.BLACK);
             g.drawString("Infected", 980, 72);
+            g.drawString((int) (infectedHeight / total + 0.5) + "%", 340, 90);
 
             g.setColor(Color.green);
             g.fillRect(950, 80, 20, 15);
+            g.fillRect(310, 100, 20, 15);
             g.setColor(Color.BLACK);
             g.drawString("Susceptible", 980, 92);
+            g.drawString((int) (uninfectedHeight / total + 0.5) + "%", 340, 110);
 
             g.setColor(Color.darkGray);
             g.fillRect(950, 100, 20, 15);
+            g.fillRect(310, 120, 20, 15);
             g.setColor(Color.BLACK);
             g.drawString("Immune", 980, 112);
+            g.drawString((int) (immuneHeight / total + 0.5) + "%", 340, 130);
+
+            g.drawString("Round: " + Simulation.round, 980, 132);
         }
     };
 
@@ -235,7 +248,6 @@ public class Visualisation {
         render();
         renderPie(totalCount);
         renderHistogram(totalCount);
-        System.out.println("render");
     }
 
     // Record for easy storage
@@ -269,9 +281,9 @@ public class Visualisation {
         if (total == 0) return;
 
         // Calculate percentages for 100% stacked chart (height proportional to percentage)
-        float infectedHeight = ((float) nums[0] / total) * 300; // Scale to chart height
-        float uninfectedHeight = ((float) nums[1] / total) * 300;
-        float immuneHeight = ((float) nums[2] / total) * 300;
+        infectedHeight = ((float) nums[0] / total) * 300; // Scale to chart height
+        uninfectedHeight = ((float) nums[1] / total) * 300;
+        immuneHeight = ((float) nums[2] / total) * 300;
 
         Float[][] infected = new Float[2][2];
         Float[][] uninfected = new Float[2][2];
