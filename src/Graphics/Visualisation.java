@@ -14,28 +14,47 @@ import java.lang.Math;
 import java.util.ArrayList;
 
 public class Visualisation {
-    private static final Window stats = new Window(1500, 1000);
-    private static final Window sim = new Window();
-    public static ArrayList<Pixel> pixelQueue = new ArrayList<>();
+    private Simulation s;
 
-    static BufferedImage offScreenImage;
-    static int[][] angles = new int[3][2];
-    static ArrayList<Float[][]> uninfectedGraphValues;
-    static ArrayList<Float[][]> immuneGraphValues;
-    static ArrayList<Float[][]> infectedGraphValues;
+    private final JFrame stats = new JFrame(1500, 1000);
+    private final Window sim = new Window();
+    public ArrayList<Pixel> pixelQueue = new ArrayList<>();
 
-    static float infectedHeight;
-    static float uninfectedHeight;
-    static float immuneHeight;
+    BufferedImage offScreenImage;
+    int[][] angles = new int[3][2];
+    ArrayList<Float[][]> uninfectedGraphValues;
+    ArrayList<Float[][]> immuneGraphValues;
+    ArrayList<Float[][]> infectedGraphValues;
 
-    public static Container simContentPane = new Container() {
+    float infectedHeight;
+    float uninfectedHeight;
+    float immuneHeight;
+
+
+    public Visualisation(Simulation s) {
+        this.s = s;
+
+        uninfectedGraphValues = new ArrayList<>();
+        immuneGraphValues = new ArrayList<>();
+        infectedGraphValues = new ArrayList<>();
+
+        sim.setContentPane(simContentPane);
+        stats.setContentPane(statsContentPane);
+
+        simContentPane.setPreferredSize(new Dimension(s.size[0] * 10, s.size[1] * 10));
+        statsContentPane.setPreferredSize(new Dimension(1500, 1000));
+        sim.setSize(sim.getPreferredSize());
+        stats.setSize(stats.getPreferredSize());
+    }
+
+    public Container simContentPane = new Container() {
         public void paint(Graphics g) {
             super.paint(g);
             g.drawImage(offScreenImage, 0, 0, null);
         }
     };
 
-    public static void render(){
+    public void render(){
         offScreenImage = new BufferedImage(simContentPane.getWidth(), simContentPane.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = (Graphics2D) offScreenImage.getGraphics();
 
@@ -49,8 +68,8 @@ public class Visualisation {
         }
     }
 
-    public static Container statsContentPane = new Container(){
-        public void paint(Graphics g) {
+    public Container statsContentPane = new Container(){
+        public void paint(Graphics g) throws ArrayIndexOutOfBoundsException {
             super.paint(g);
 
             // Draw infected slice (red)
@@ -194,33 +213,21 @@ public class Visualisation {
             g.drawString("Immune", 980, 112);
             g.drawString((int) (immuneHeight / total + 0.5) + "%", 340, 130);
 
-            g.drawString("Round: " + Simulation.round, 980, 132);
+            g.drawString("Round: " + s.round, 980, 132);
         }
     };
 
-    public Visualisation() {
-        uninfectedGraphValues = new ArrayList<>();
-        immuneGraphValues = new ArrayList<>();
-        infectedGraphValues = new ArrayList<>();
 
-        sim.setContentPane(simContentPane);
-        stats.setContentPane(statsContentPane);
 
-        simContentPane.setPreferredSize(new Dimension(Simulation.size[0] * 10, Simulation.size[1] * 10));
-        statsContentPane.setPreferredSize(new Dimension(1500, 1000));
-        sim.setSize(sim.getPreferredSize());
-        stats.setSize(stats.getPreferredSize());
-    }
-
-    public static void visualiseRound() {
+    public void visualiseRound() {
         // Creates a 3d array for storing the number of infected, immune, and normal subjects on each tile
-        int[][][] count = new int[Simulation.size[0]][Simulation.size[1]][3];
+        int[][][] count = new int[s.size[0]][s.size[1]][3];
         int[] totalCount = new int[3]; // [infected, uninfected, immune]
 
         // Counts the number of types of subject on each tile and draws them
-        for (int i = 0; i < Simulation.size[0]; i++) {
-            for (int j = 0; j < Simulation.size[1]; j++) {
-                for (Subject subject : Simulation.board[i][j]) {
+        for (int i = 0; i < s.size[0]; i++) {
+            for (int j = 0; j < s.size[1]; j++) {
+                for (Subject subject : s.board[i][j]) {
                     if (subject.infected){
                         count[i][j][0]++;
                         totalCount[0]++;
@@ -253,7 +260,7 @@ public class Visualisation {
     // Record for easy storage
     private record Pixel(int x, int y, Color colour) {}
 
-    public static void renderPie(int[] nums) {
+    public void renderPie(int[] nums) {
         int total = nums[0] + nums[1] + nums[2];
 
         if (total == 0) return; // Avoid division by zero
@@ -276,7 +283,7 @@ public class Visualisation {
         angles[2][1] = angle3;
     }
 
-    public static void renderHistogram(int[] nums) {
+    public void renderHistogram(int[] nums) {
         int total = nums[0] + nums[1] + nums[2];
         if (total == 0) return;
 
@@ -304,9 +311,9 @@ public class Visualisation {
 
         // Limit the number of data points to keep within chart bounds
         if (infectedGraphValues.size() >= 50) { // 50 * 10 = 500 pixels width
-            infectedGraphValues.remove(0);
-            uninfectedGraphValues.remove(0);
-            immuneGraphValues.remove(0);
+            infectedGraphValues.removeFirst();
+            uninfectedGraphValues.removeFirst();
+            immuneGraphValues.removeFirst();
         }
 
         infectedGraphValues.add(infected);

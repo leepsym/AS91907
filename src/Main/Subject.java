@@ -3,6 +3,7 @@ package Main;
 import java.util.ArrayList;
 
 public class Subject {
+    private final Simulation s;
     public boolean infected = false;
     public boolean infectable = true;
 
@@ -11,35 +12,36 @@ public class Subject {
 
     int[] location = new int[2];
 
-    public Subject() {
-        location[0] = (int) (Math.random() * Simulation.size[0]);
-        location[1] = (int) (Math.random() * Simulation.size[1]);
+    public Subject(Simulation s) {
+        this.s = s;
+        location[0] = (int) (Math.random() * s.size[0]);
+        location[1] = (int) (Math.random() * s.size[1]);
     }
 
     public void infect(Subject source) {
         if (!infected && infectable) {
-            Simulation.addInfection(location, this, source);
+            s.addInfection(location, this, source);
         }
     }
 
     public void startInfected() {
-        Simulation.addInfection(location, this, this);
+        s.addInfection(location, this, this);
     }
 
     public void handleInfection() {
         if (infected && !infectCount.isEmpty()) {
             // Check if infection duration has passed
-            if (Simulation.round >= infectCount.getLast().round() + Simulation.infectDuration) {
+            if (s.round >= infectCount.getLast().round() + s.infectDuration) {
                 infected = false;
-                Simulation.infected--;
+                s.infected--;
                 infectable = false;
-                Simulation.immune++;
+                s.immune++;
             }
         } else if (!infectable && !infectCount.isEmpty()) {
             // Check if immunity duration has passed
-            if (Simulation.round >= infectCount.getLast().round() + Simulation.infectDuration + Simulation.immunityDuration) {
+            if (s.round >= infectCount.getLast().round() + s.infectDuration + s.immunityDuration) {
                 infectable = true;
-                Simulation.immune--;
+                s.immune--;
             }
         }
     }
@@ -49,12 +51,12 @@ public class Subject {
 
         switch (direction) {
             case 0: // Move right
-                if (location[0] < Simulation.size[0] - 1) {
+                if (location[0] < s.size[0] - 1) {
                     location[0]++;
                 }
                 break;
             case 1: // Move down
-                if (location[1] < Simulation.size[1] - 1) {
+                if (location[1] < s.size[1] - 1) {
                     location[1]++;
                 }
                 break;
