@@ -1,30 +1,25 @@
-package Graphics;
-
-import Main.Simulation;
-import Main.Subject;
-
+import javax.swing.JFrame;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagLayout;
 import java.awt.image.BufferedImage;
 import java.lang.Float;
 import java.lang.Math;
 import java.util.ArrayList;
 
 public class Visualisation {
-    private Simulation s;
+    final Simulation s;
 
-    private final JFrame stats = new JFrame(1500, 1000);
-    private final Window sim = new Window();
-    public ArrayList<Pixel> pixelQueue = new ArrayList<>();
+    ArrayList<Pixel> pixelQueue = new ArrayList<>();
 
     BufferedImage offScreenImage;
     int[][] angles = new int[3][2];
-    ArrayList<Float[][]> uninfectedGraphValues;
-    ArrayList<Float[][]> immuneGraphValues;
-    ArrayList<Float[][]> infectedGraphValues;
+    ArrayList<Float[][]> uninfectedGraphValues = new ArrayList<>();
+    ArrayList<Float[][]> immuneGraphValues = new ArrayList<>();
+    ArrayList<Float[][]> infectedGraphValues = new ArrayList<>();
 
     float infectedHeight;
     float uninfectedHeight;
@@ -34,17 +29,21 @@ public class Visualisation {
     public Visualisation(Simulation s) {
         this.s = s;
 
-        uninfectedGraphValues = new ArrayList<>();
-        immuneGraphValues = new ArrayList<>();
-        infectedGraphValues = new ArrayList<>();
+        JFrame statisticsPane = new JFrame("AS91907 | Statistics");
+        statisticsPane.setSize(1250, 500);
+        JFrame simulationPane = new JFrame("AS91907 | Simulation");
+        simulationPane.setTitle("AS91907 | Virus Simulator");
+        simulationPane.setLayout(new GridBagLayout());
+        simulationPane.setResizable(false);
 
-        sim.setContentPane(simContentPane);
-        stats.setContentPane(statsContentPane);
+        simulationPane.setContentPane(simContentPane);
+        statisticsPane.setContentPane(statsContentPane);
 
         simContentPane.setPreferredSize(new Dimension(s.size[0] * 10, s.size[1] * 10));
-        statsContentPane.setPreferredSize(new Dimension(1500, 1000));
-        sim.setSize(sim.getPreferredSize());
-        stats.setSize(stats.getPreferredSize());
+        simulationPane.pack();
+
+        simulationPane.setVisible(true);
+        statisticsPane.setVisible(true);
     }
 
     public Container simContentPane = new Container() {
@@ -58,10 +57,8 @@ public class Visualisation {
         offScreenImage = new BufferedImage(simContentPane.getWidth(), simContentPane.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = (Graphics2D) offScreenImage.getGraphics();
 
-        // Prepares grid drawing
         g2.setColor(Color.BLACK);
 
-        // Fills in boxes depending on the majority type of subject there
         for(Pixel pixel : pixelQueue) {
             g2.setColor(pixel.colour);
             g2.fillRect(pixel.x * 10, pixel.y * 10, 10, 10);
@@ -69,7 +66,7 @@ public class Visualisation {
     }
 
     public Container statsContentPane = new Container(){
-        public void paint(Graphics g) throws ArrayIndexOutOfBoundsException {
+        public void paint(Graphics g) {
             super.paint(g);
 
             // Draw infected slice (red)
@@ -89,10 +86,9 @@ public class Visualisation {
             g.drawOval(0, 0, 300, 300);
 
             // Draw stacked areas using smooth connecting lines
-            if (infectedGraphValues.size() > 0) {
+            if (!infectedGraphValues.isEmpty()) {
                 // Calculate cumulative heights for each time point
                 int[] xPoints = new int[infectedGraphValues.size()];
-                int[] infectedTopY = new int[infectedGraphValues.size()];
                 int[] uninfectedTopY = new int[infectedGraphValues.size()];
                 int[] immuneTopY = new int[infectedGraphValues.size()];
 
@@ -101,7 +97,6 @@ public class Visualisation {
                     // Stack from bottom to top: immune (bottom), uninfected (middle), infected (top)
                     immuneTopY[i] = 300 - immuneGraphValues.get(i)[1][0].intValue();
                     uninfectedTopY[i] = immuneTopY[i] - uninfectedGraphValues.get(i)[1][0].intValue();
-                    infectedTopY[i] = 0; // Infected always goes to the top
                 }
 
                 // Draw immune area (bottom layer - grey)
@@ -217,14 +212,10 @@ public class Visualisation {
         }
     };
 
-
-
     public void visualiseRound() {
-        // Creates a 3d array for storing the number of infected, immune, and normal subjects on each tile
         int[][][] count = new int[s.size[0]][s.size[1]][3];
-        int[] totalCount = new int[3]; // [infected, uninfected, immune]
+        int[] totalCount = new int[3];
 
-        // Counts the number of types of subject on each tile and draws them
         for (int i = 0; i < s.size[0]; i++) {
             for (int j = 0; j < s.size[1]; j++) {
                 for (Subject subject : s.board[i][j]) {
@@ -239,9 +230,9 @@ public class Visualisation {
                         totalCount[2]++;
                     }
                 }
-                int k = count[i][j][0]; // Infected
-                int m = count[i][j][1]; // Infectable
-                int n = count[i][j][2]; // Immune
+                int k = count[i][j][0];
+                int m = count[i][j][1];
+                int n = count[i][j][2];
 
                 if (k > 0) {
                     pixelQueue.add(new Pixel(i, j, Color.red));
@@ -257,28 +248,23 @@ public class Visualisation {
         renderHistogram(totalCount);
     }
 
-    // Record for easy storage
     private record Pixel(int x, int y, Color colour) {}
 
     public void renderPie(int[] nums) {
         int total = nums[0] + nums[1] + nums[2];
 
-        if (total == 0) return; // Avoid division by zero
+        if (total == 0) return;
 
-        // Calculate angles as integers (avoiding truncation issues)
-        int angle1 = (int) Math.round((double) nums[0] / total * 360); // Infected
-        int angle2 = (int) Math.round((double) nums[1] / total * 360); // Uninfected
-        int angle3 = 360 - angle1 - angle2; // Immune - ensure total is exactly 360
+        int angle1 = (int) Math.round((double) nums[0] / total * 360);
+        int angle2 = (int) Math.round((double) nums[1] / total * 360);
+        int angle3 = 360 - angle1 - angle2;
 
-        // Set starting angles and arc lengths for infected (red)
         angles[0][0] = 0;
         angles[0][1] = angle1;
 
-        // Set starting angles and arc lengths for uninfected (green)
         angles[1][0] = angle1;
         angles[1][1] = angle2;
 
-        // Set starting angles and arc lengths for immune (grey)
         angles[2][0] = angle1 + angle2;
         angles[2][1] = angle3;
     }
@@ -287,8 +273,7 @@ public class Visualisation {
         int total = nums[0] + nums[1] + nums[2];
         if (total == 0) return;
 
-        // Calculate percentages for 100% stacked chart (height proportional to percentage)
-        infectedHeight = ((float) nums[0] / total) * 300; // Scale to chart height
+        infectedHeight = ((float) nums[0] / total) * 300;
         uninfectedHeight = ((float) nums[1] / total) * 300;
         immuneHeight = ((float) nums[2] / total) * 300;
 
@@ -296,21 +281,21 @@ public class Visualisation {
         Float[][] uninfected = new Float[2][2];
         Float[][] immune = new Float[2][2];
 
-        // Store just the height for each category (not position)
-        infected[0][0] = 0f; // Not used for height calculation
-        infected[0][1] = 0f; // Not used for height calculation
-        infected[1][0] = infectedHeight; // Height of infected area
 
-        uninfected[0][0] = 0f; // Not used for height calculation
-        uninfected[0][1] = 0f; // Not used for height calculation
-        uninfected[1][0] = uninfectedHeight; // Height of uninfected area
+        infected[0][0] = 0f;
+        infected[0][1] = 0f;
+        infected[1][0] = infectedHeight;
 
-        immune[0][0] = 0f; // Not used for height calculation
-        immune[0][1] = 0f; // Not used for height calculation
-        immune[1][0] = immuneHeight; // Height of immune area
+        uninfected[0][0] = 0f;
+        uninfected[0][1] = 0f;
+        uninfected[1][0] = uninfectedHeight;
 
-        // Limit the number of data points to keep within chart bounds
-        if (infectedGraphValues.size() >= 50) { // 50 * 10 = 500 pixels width
+        immune[0][0] = 0f;
+        immune[0][1] = 0f;
+        immune[1][0] = immuneHeight;
+
+
+        if (infectedGraphValues.size() >= 50) {
             infectedGraphValues.removeFirst();
             uninfectedGraphValues.removeFirst();
             immuneGraphValues.removeFirst();

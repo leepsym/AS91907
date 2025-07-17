@@ -1,9 +1,7 @@
-package Main;
-
 import java.util.ArrayList;
 
 public class Subject {
-    private final Simulation s;
+    final Simulation s;
     public boolean infected = false;
     public boolean infectable = true;
 
@@ -38,7 +36,6 @@ public class Subject {
                 s.immune++;
             }
         } else if (!infectable && !infectCount.isEmpty()) {
-            // Check if immunity duration has passed
             if (s.round >= infectCount.getLast().round() + s.infectDuration + s.immunityDuration) {
                 infectable = true;
                 s.immune--;

@@ -1,27 +1,20 @@
-package Main;
-
-import Graphics.Visualisation;
-
-import javax.swing.*;
 import java.util.ArrayList;
 
-public class Simulation extends SwingWorker<Void,Void> {
-    private final Visualisation v;
-
+public class Simulation extends Thread{
     // Base Parameters
-    public int populationSize = 1000;
-    public int startingInfected = 1;
-    public int infectChance = 90;
-    public int infectDuration = 10;
-    public int immunityDuration = 10;
-    public int maxRuntime = -1;
+    public int populationSize;
+    public int startingInfected;
+    public int infectChance;
+    public int infectDuration;
+    public int immunityDuration;
+    public int maxRuntime;
 
     public int[] size = new int[2];
 
     // Statistics trackers
     public int round = 0;
-    int infected = 0;
-    int immune = 0;
+    public int infected = 0;
+    public int immune = 0;
 
     // Storage
     public ArrayList<Infection> infections = new ArrayList<>();
@@ -29,10 +22,20 @@ public class Simulation extends SwingWorker<Void,Void> {
     public ArrayList<Subject>[][] board;
 
     // Other
+    Visualisation v;
 
-    public Simulation() {
-        size[0] = 50;
-        size[1] = 50;
+    public Simulation(int sw, int sh,int ps, int si, int ic, int id, int iD, int mr) {
+        super();
+
+        size[0] = sw;
+        size[1] = sh;
+        populationSize = ps;
+        startingInfected = si;
+        infectChance = ic;
+        infectDuration = id;
+        immunityDuration = iD;
+        maxRuntime = mr;
+
 
         v = new Visualisation(this);
         initializeBoard();
@@ -58,7 +61,7 @@ public class Simulation extends SwingWorker<Void,Void> {
         }
     }
 
-    private void simulateRound() {
+    public void simulateRound() {
         // Clear the board
         for (int i = 0; i < size[0]; i++) {
             for (int j = 0; j < size[1]; j++) {
@@ -128,13 +131,12 @@ public class Simulation extends SwingWorker<Void,Void> {
     }
 
     @Override
-    protected Void doInBackground() throws Exception {
-        // Main simulation loop
-        while (infected > 0 && infected < populationSize - immune && round != maxRuntime ) {
-            Thread.sleep(2);
+    public void run() {
+        System.out.println(round != maxRuntime);
+        while (infected > 0 && infected < populationSize - immune && round != maxRuntime) {
+            System.out.println(round);
             simulateRound();
             round++;
         }
-        return null;
     }
 }
