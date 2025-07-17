@@ -72,23 +72,19 @@ public class Visualisation {
             int total = nums[0] + nums[1] + nums[2];
 
             if (total != 0) {
+                fillArc(360, Color.darkGray, g);
                 fillArc(Math.round((double) nums[0] / total * 360), Color.red, g);
                 fillArc(Math.round((double) nums[1] / total * 360), Color.green, g);
-                fillArc(0, Color.darkGray, g);
 
                 g.setColor(Color.black);
                 g.drawOval(15, 15, 300, 300);
             }
 
-
-            // Draw pie chart background
-            g.setColor(Color.black);
-            g.drawOval(0, 0, 300, 300);
-
             // Draw stacked areas using smooth connecting lines
-            if (!infectedGraphValues.isEmpty()) {
+            if (infectedGraphValues.size() > 0) {
                 // Calculate cumulative heights for each time point
                 int[] xPoints = new int[infectedGraphValues.size()];
+                int[] infectedTopY = new int[infectedGraphValues.size()];
                 int[] uninfectedTopY = new int[infectedGraphValues.size()];
                 int[] immuneTopY = new int[infectedGraphValues.size()];
 
@@ -97,6 +93,7 @@ public class Visualisation {
                     // Stack from bottom to top: immune (bottom), uninfected (middle), infected (top)
                     immuneTopY[i] = 300 - immuneGraphValues.get(i)[1][0].intValue();
                     uninfectedTopY[i] = immuneTopY[i] - uninfectedGraphValues.get(i)[1][0].intValue();
+                    infectedTopY[i] = 0; // Infected always goes to the top
                 }
 
                 // Draw immune area (bottom layer - grey)
@@ -188,19 +185,16 @@ public class Visualisation {
 
             g.setColor(Color.red);
             g.fillRect(950, 60, 20, 15);
-            g.fillRect(310, 80, 20, 15);
             g.setColor(Color.BLACK);
             g.drawString("Infected", 980, 72);
 
             g.setColor(Color.green);
             g.fillRect(950, 80, 20, 15);
-            g.fillRect(310, 100, 20, 15);
             g.setColor(Color.BLACK);
             g.drawString("Susceptible", 980, 92);
 
             g.setColor(Color.darkGray);
             g.fillRect(950, 100, 20, 15);
-            g.fillRect(310, 120, 20, 15);
             g.setColor(Color.BLACK);
             g.drawString("Immune", 980, 112);
 
@@ -214,27 +208,29 @@ public class Visualisation {
             start = intRad;
         }
     };
-
     public void visualiseRound() {
+        // Creates a 3d array for storing the number of infected, immune, and normal subjects on each tile
         int[][][] count = new int[s.size[0]][s.size[1]][3];
+        int[] totalCount = new int[3]; // [infected, uninfected, immune]
 
+        // Counts the number of types of subject on each tile and draws them
         for (int i = 0; i < s.size[0]; i++) {
             for (int j = 0; j < s.size[1]; j++) {
                 for (Subject subject : s.board[i][j]) {
                     if (subject.infected){
                         count[i][j][0]++;
-                        nums[0]++;
+                        totalCount[0]++;
                     } else if (subject.infectable) {
                         count[i][j][1]++;
-                        nums[1]++;
+                        totalCount[1]++;
                     } else {
                         count[i][j][2]++;
-                        nums[2]++;
+                        totalCount[2]++;
                     }
                 }
-                int k = count[i][j][0];
-                int m = count[i][j][1];
-                int n = count[i][j][2];
+                int k = count[i][j][0]; // Infected
+                int m = count[i][j][1]; // Infectable
+                int n = count[i][j][2]; // Immune
 
                 if (k > 0) {
                     pixelQueue.add(new Pixel(i, j, Color.red));
@@ -246,7 +242,10 @@ public class Visualisation {
             }
         }
         render();
-        renderHistogram(nums);
+        nums = totalCount;
+        renderHistogram(totalCount);
+
+        System.out.println(0);
     }
 
     private record Pixel(int x, int y, Color colour) {}

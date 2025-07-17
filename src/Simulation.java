@@ -11,6 +11,10 @@ public class Simulation extends Thread{
 
     public int[] size = new int[2];
 
+
+    public String name;
+    public int frameDelay;
+
     // Statistics trackers
     public int round = 0;
     public int infected = 0;
@@ -25,7 +29,7 @@ public class Simulation extends Thread{
     Visualisation v;
     public Boolean run = true;
 
-    public Simulation(int sw, int sh,int ps, int si, int ic, int id, int iD, int mr) {
+    public Simulation(int sw, int sh,int ps, int si, int ic, int id, int iD, int mr, int fd, String n) {
         super();
 
         size[0] = sw;
@@ -36,6 +40,8 @@ public class Simulation extends Thread{
         infectDuration = id;
         immunityDuration = iD;
         maxRuntime = mr;
+        frameDelay = fd;
+        name = n;
 
 
         v = new Visualisation(this);
@@ -89,6 +95,7 @@ public class Simulation extends Thread{
         // Update visualization
         v.pixelQueue.clear();
         v.visualiseRound();
+        System.out.println(1);
         v.simContentPane.repaint();
         v.statsContentPane.repaint();
     }
@@ -130,6 +137,7 @@ public class Simulation extends Thread{
         while (infected > 0 && infected < populationSize - immune && round != maxRuntime && run) {
             round++;
             simulateRound();
+            try {Thread.sleep(6 + frameDelay);} catch (InterruptedException ignored) {}
         }
     }
 }

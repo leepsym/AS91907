@@ -1,21 +1,19 @@
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.Border;
-import java.awt.Color;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.util.ArrayList;
 
 public class Main {
     private static final JFrame settings = new JFrame("Simulation Settings");
     private static final ArrayList<Simulation> simulations = new ArrayList<>();
+    private static JComboBox comboBox;
+    private static JComboBox comboBox2;
 
     public static void main(String[] args) {
         Border blackLine = BorderFactory.createLineBorder(Color.black);
-        JTextField[] textFields = new JTextField[8];
+        JTextField[] textFields = new JTextField[10];
 
-        settings.setLayout(new GridLayout(5, 2));
+        settings.setLayout(new GridLayout(7, 2));
         settings.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         settings.setSize(300, 300);
 
@@ -60,15 +58,34 @@ public class Main {
         textFields[7].setText("200");
         settings.add(textFields[7]);
 
+        textFields[8] = new JTextField();
+        textFields[8].setBorder(BorderFactory.createTitledBorder(blackLine, "Frame Delay (ms)"));
+        textFields[8].setText("0");
+        settings.add(textFields[8]);
+
+        textFields[9] = new JTextField();
+        textFields[9].setBorder(BorderFactory.createTitledBorder(blackLine, "Simulation Name"));
+        textFields[9].setText("Unnamed Simulation");
+        settings.add(textFields[9]);
+
+
         JButton button = new JButton("Start");
         button.addActionListener(l -> runSimulation(textFields));
         settings.add(button);
 
+
+        comboBox = new JComboBox();
+        comboBox.setBorder(BorderFactory.createTitledBorder(blackLine, "Select Simulation"));
+        settings.add(comboBox);
+
+        comboBox2 = new JComboBox(new String[]{"Open", "Close", "Start", "Stop", "Download"});
+        comboBox2.setBorder(BorderFactory.createTitledBorder(blackLine, "Select Action"));
+        settings.add(comboBox2);
+
+
         JButton button2 = new JButton("Stop");
         button2.addActionListener(l -> {
-            for (Simulation sim : simulations){
-                sim.run = false;
-            }
+            simulationAction();
         });
         settings.add(button2);
 
@@ -83,9 +100,8 @@ public class Main {
 
         try {
             st[0] = Integer.parseInt(textFields[0].getText());
-            // Reset border to normal if parsing succeeded
             textFields[0].setBorder(BorderFactory.createTitledBorder(blackLine, "Simulation Height"));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             textFields[0].setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Simulation Height"));
             pass = false;
         }
@@ -93,7 +109,7 @@ public class Main {
         try {
             st[1] = Integer.parseInt(textFields[1].getText());
             textFields[1].setBorder(BorderFactory.createTitledBorder(blackLine, "Simulation Width"));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             textFields[1].setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Simulation Width"));
             pass = false;
         }
@@ -101,7 +117,7 @@ public class Main {
         try {
             st[2] = Integer.parseInt(textFields[2].getText());
             textFields[2].setBorder(BorderFactory.createTitledBorder(blackLine, "Population"));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             textFields[2].setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Population"));
             pass = false;
         }
@@ -109,7 +125,7 @@ public class Main {
         try {
             st[3] = Integer.parseInt(textFields[3].getText());
             textFields[3].setBorder(BorderFactory.createTitledBorder(blackLine, "Starting Infected"));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             textFields[3].setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Starting Infected"));
             pass = false;
         }
@@ -117,7 +133,7 @@ public class Main {
         try {
             st[4] = Integer.parseInt(textFields[4].getText());
             textFields[4].setBorder(BorderFactory.createTitledBorder(blackLine, "Chance of infection (%)"));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             textFields[4].setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Chance of infection (%)"));
             pass = false;
         }
@@ -125,7 +141,7 @@ public class Main {
         try {
             st[5] = Integer.parseInt(textFields[5].getText());
             textFields[5].setBorder(BorderFactory.createTitledBorder(blackLine, "Infection Duration"));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             textFields[5].setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Infection Duration"));
             pass = false;
         }
@@ -133,7 +149,7 @@ public class Main {
         try {
             st[6] = Integer.parseInt(textFields[6].getText());
             textFields[6].setBorder(BorderFactory.createTitledBorder(blackLine, "Immunity Duration"));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             textFields[6].setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Immunity Duration"));
             pass = false;
         }
@@ -141,15 +157,57 @@ public class Main {
         try {
             st[7] = Integer.parseInt(textFields[7].getText());
             textFields[7].setBorder(BorderFactory.createTitledBorder(blackLine, "Maximum Runtime"));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             textFields[7].setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Maximum Runtime"));
             pass = false;
         }
 
+        try {
+            st[8] = Integer.parseInt(textFields[8].getText());
+            textFields[8].setBorder(BorderFactory.createTitledBorder(blackLine, "Frame Delay (ms)"));
+        } catch (NumberFormatException ignored) {
+            textFields[8].setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Maximum Runtime"));
+            pass = false;
+        }
+
         if (pass) {
-            Simulation sim = new Simulation(st[0], st[1], st[2], st[3], st[4], st[5], st[6], st[7]);
+            Simulation sim = new Simulation(st[0], st[1], st[2], st[3], st[4], st[5], st[6], st[7], st[8], textFields[9].getText());
             simulations.add(sim);
+            comboBox.add(textFields[9].getText(), new Component(){
+                Simulation simulation = sim;
+            });
             sim.start();
+        }
+    }
+
+    private static void simulationAction() {
+        boolean pass = true;
+        Simulation sim;
+        String act = null;
+
+        try {
+            sim = (Simulation) comboBox.getSelectedItem().simulation;
+        } catch (ClassCastException ignored) {
+            comboBox.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Select Simulation"));
+            pass = false;
+        }
+
+        try {
+            act = (String) comboBox2.getSelectedItem();
+        } catch (ClassCastException ignored) {
+            comboBox2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Select Action"));
+            pass = false;
+        }
+
+        if (pass) {
+            switch (act) {
+                case "Open" -> {}
+                case "Close" -> {}
+                case "Start" -> {}
+                case "Stop" -> {}
+                case "Download" -> {}
+                default -> {}
+            }
         }
     }
 }
