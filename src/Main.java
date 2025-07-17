@@ -1,9 +1,15 @@
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JTextField;
 import javax.swing.border.Border;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.util.ArrayList;
 
 public class Main {
     private static final JFrame settings = new JFrame("Simulation Settings");
+    private static final ArrayList<Simulation> simulations = new ArrayList<>();
 
     public static void main(String[] args) {
         Border blackLine = BorderFactory.createLineBorder(Color.black);
@@ -11,6 +17,7 @@ public class Main {
 
         settings.setLayout(new GridLayout(5, 2));
         settings.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        settings.setSize(300, 300);
 
         // Create individual text fields
         textFields[0] = new JTextField();
@@ -57,8 +64,15 @@ public class Main {
         button.addActionListener(l -> runSimulation(textFields));
         settings.add(button);
 
-        // Pack and show the window
-        settings.pack();
+        JButton button2 = new JButton("Stop");
+        button2.addActionListener(l -> {
+            for (Simulation sim : simulations){
+                sim.run = false;
+            }
+        });
+        settings.add(button2);
+
+
         settings.setVisible(true);
     }
 
@@ -133,21 +147,9 @@ public class Main {
         }
 
         if (pass) {
-            settings.setVisible(false); // Hide settings window
-            new Simulation(st[0], st[1], st[2], st[3], st[4], st[5], st[6], st[7]).start();
-        } else {
-            settings.getContentPane().removeAll();
-
-            for (int i = 0; i < textFields.length; i++) {
-                settings.add(textFields[i]);
-            }
-
-            JButton button = new JButton("Start");
-            button.addActionListener(l -> runSimulation(textFields));
-            settings.add(button);
-
-            settings.revalidate();
-            settings.repaint();
+            Simulation sim = new Simulation(st[0], st[1], st[2], st[3], st[4], st[5], st[6], st[7]);
+            simulations.add(sim);
+            sim.start();
         }
     }
 }

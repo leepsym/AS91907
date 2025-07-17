@@ -23,6 +23,7 @@ public class Simulation extends Thread{
 
     // Other
     Visualisation v;
+    public Boolean run = true;
 
     public Simulation(int sw, int sh,int ps, int si, int ic, int id, int iD, int mr) {
         super();
@@ -93,15 +94,13 @@ public class Simulation extends Thread{
     }
 
     public void addInfection(int[] location, Subject subject, Subject source) {
-        if (subject.infected) return; // Prevent double infection
+        if (subject.infected) return;
 
         Infection infection = new Infection(location.clone(), round, subject, source);
         infections.add(infection);
 
         subject.infectCount.add(infection);
-        if (source != subject) { // Only add to source's infection count if it's not self-infection
-            source.infectionCount.add(infection);
-        }
+        if (source != subject) source.infectionCount.add(infection);
 
         subject.infected = true;
         infected++;
@@ -112,16 +111,12 @@ public class Simulation extends Thread{
         ArrayList<Subject> susceptible = new ArrayList<>();
 
         for (Subject subject : subjects) {
-            if (subject.infected) {
-                infectedSubjects.add(subject);
-            } else if (subject.infectable) {
-                susceptible.add(subject);
-            }
+            if (subject.infected) infectedSubjects.add(subject);
+            else if (subject.infectable) susceptible.add(subject);
         }
 
         if (!infectedSubjects.isEmpty() && !susceptible.isEmpty()) {
             for (Subject subject : susceptible) {
-                // Fixed the random chance calculation
                 if (Math.random() * 100 < infectChance) {
                     Subject source = infectedSubjects.get((int) (Math.random() * infectedSubjects.size()));
                     subject.infect(source);
@@ -132,11 +127,9 @@ public class Simulation extends Thread{
 
     @Override
     public void run() {
-        System.out.println(round != maxRuntime);
-        while (infected > 0 && infected < populationSize - immune && round != maxRuntime) {
-            System.out.println(round);
-            simulateRound();
+        while (infected > 0 && infected < populationSize - immune && round != maxRuntime && run) {
             round++;
+            simulateRound();
         }
     }
 }

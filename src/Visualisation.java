@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
 import java.awt.image.BufferedImage;
 import java.lang.Float;
-import java.lang.Math;
 import java.util.ArrayList;
 
 public class Visualisation {
@@ -16,7 +15,8 @@ public class Visualisation {
     ArrayList<Pixel> pixelQueue = new ArrayList<>();
 
     BufferedImage offScreenImage;
-    int[][] angles = new int[3][2];
+    int[] nums = new int[3];
+    private int start = 0;
     ArrayList<Float[][]> uninfectedGraphValues = new ArrayList<>();
     ArrayList<Float[][]> immuneGraphValues = new ArrayList<>();
     ArrayList<Float[][]> infectedGraphValues = new ArrayList<>();
@@ -69,17 +69,17 @@ public class Visualisation {
         public void paint(Graphics g) {
             super.paint(g);
 
-            // Draw infected slice (red)
-            g.setColor(Color.red);
-            g.fillArc(0, 0, 300, 300, angles[0][0], angles[0][1]);
+            int total = nums[0] + nums[1] + nums[2];
 
-            // Draw uninfected slice (green)
-            g.setColor(Color.green);
-            g.fillArc(0, 0, 300, 300, angles[1][0], angles[1][1]);
+            if (total != 0) {
+                fillArc(Math.round((double) nums[0] / total * 360), Color.red, g);
+                fillArc(Math.round((double) nums[1] / total * 360), Color.green, g);
+                fillArc(0, Color.darkGray, g);
 
-            // Draw immune slice (grey)
-            g.setColor(Color.darkGray);
-            g.fillArc(0, 0, 300, 300, angles[2][0], angles[2][1]);
+                g.setColor(Color.black);
+                g.drawOval(15, 15, 300, 300);
+            }
+
 
             // Draw pie chart background
             g.setColor(Color.black);
@@ -181,7 +181,6 @@ public class Visualisation {
                 g.fillPolygon(infectedXPoints, infectedYPoints, infectedGraphValues.size() * 2 + 2);
             }
 
-            int total = (int) (infectedHeight + immuneHeight + uninfectedHeight) / 100;
 
             // Add legend
             g.setColor(Color.BLACK);
@@ -192,42 +191,45 @@ public class Visualisation {
             g.fillRect(310, 80, 20, 15);
             g.setColor(Color.BLACK);
             g.drawString("Infected", 980, 72);
-            g.drawString((int) (infectedHeight / total + 0.5) + "%", 340, 90);
 
             g.setColor(Color.green);
             g.fillRect(950, 80, 20, 15);
             g.fillRect(310, 100, 20, 15);
             g.setColor(Color.BLACK);
             g.drawString("Susceptible", 980, 92);
-            g.drawString((int) (uninfectedHeight / total + 0.5) + "%", 340, 110);
 
             g.setColor(Color.darkGray);
             g.fillRect(950, 100, 20, 15);
             g.fillRect(310, 120, 20, 15);
             g.setColor(Color.BLACK);
             g.drawString("Immune", 980, 112);
-            g.drawString((int) (immuneHeight / total + 0.5) + "%", 340, 130);
 
             g.drawString("Round: " + s.round, 980, 132);
+        }
+
+        private void fillArc(float radian, Color colour, Graphics g) {
+            int intRad = (int) radian;
+            g.setColor(colour);
+            g.fillArc(15, 15, 300, 300, start, intRad);
+            start = intRad;
         }
     };
 
     public void visualiseRound() {
         int[][][] count = new int[s.size[0]][s.size[1]][3];
-        int[] totalCount = new int[3];
 
         for (int i = 0; i < s.size[0]; i++) {
             for (int j = 0; j < s.size[1]; j++) {
                 for (Subject subject : s.board[i][j]) {
                     if (subject.infected){
                         count[i][j][0]++;
-                        totalCount[0]++;
+                        nums[0]++;
                     } else if (subject.infectable) {
                         count[i][j][1]++;
-                        totalCount[1]++;
+                        nums[1]++;
                     } else {
                         count[i][j][2]++;
-                        totalCount[2]++;
+                        nums[2]++;
                     }
                 }
                 int k = count[i][j][0];
@@ -244,30 +246,10 @@ public class Visualisation {
             }
         }
         render();
-        renderPie(totalCount);
-        renderHistogram(totalCount);
+        renderHistogram(nums);
     }
 
     private record Pixel(int x, int y, Color colour) {}
-
-    public void renderPie(int[] nums) {
-        int total = nums[0] + nums[1] + nums[2];
-
-        if (total == 0) return;
-
-        int angle1 = (int) Math.round((double) nums[0] / total * 360);
-        int angle2 = (int) Math.round((double) nums[1] / total * 360);
-        int angle3 = 360 - angle1 - angle2;
-
-        angles[0][0] = 0;
-        angles[0][1] = angle1;
-
-        angles[1][0] = angle1;
-        angles[1][1] = angle2;
-
-        angles[2][0] = angle1 + angle2;
-        angles[2][1] = angle3;
-    }
 
     public void renderHistogram(int[] nums) {
         int total = nums[0] + nums[1] + nums[2];

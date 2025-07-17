@@ -16,19 +16,12 @@ public class Subject {
         location[1] = (int) (Math.random() * s.size[1]);
     }
 
-    public void infect(Subject source) {
-        if (!infected && infectable) {
-            s.addInfection(location, this, source);
-        }
-    }
+    public void infect(Subject source) {if (!infected && infectable) s.addInfection(location, this, source);}
 
-    public void startInfected() {
-        s.addInfection(location, this, this);
-    }
+    public void startInfected() {s.addInfection(location, this, this);}
 
     public void handleInfection() {
         if (infected && !infectCount.isEmpty()) {
-            // Check if infection duration has passed
             if (s.round >= infectCount.getLast().round() + s.infectDuration) {
                 infected = false;
                 s.infected--;
