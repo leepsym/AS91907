@@ -1,68 +1,58 @@
-package Main;
-
-import Graphics.Visualisation;
-import Graphics.Window;
-
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
-public class Simulation {
+public class Simulation extends Thread{
     // Base Parameters
-    public static int populationSize = 50000;
-    public static int startingInfected = 1;
-    public static int infectChance = 32;
-    public static int infectDuration = 4;
-    public static int immunityDuration = 16;
-    public static int maxRuntime = -1; // Infinite runtime
+    public int populationSize;
+    public int startingInfected;
+    public int infectChance;
+    public int infectDuration;
+    public int immunityDuration;
+    public int maxRuntime;
 
-    public static int[] size = new int[2];
+    public int[] size = new int[2];
 
     // Statistics trackers
-    public static int round = 0;
-    static int infected = 0;
-    static int immune = 0;
+    public int round = 0;
+    public int infected = 0;
+    public int immune = 0;
 
     // Storage
-    public static ArrayList<Infection> infections = new ArrayList<>();
-    public static ArrayList<Subject> population = new ArrayList<>();
-    public static ArrayList<Subject>[][] board;
+    public ArrayList<Infection> infections = new ArrayList<>();
+    public ArrayList<Subject> population = new ArrayList<>();
+    public ArrayList<Subject>[][] board;
 
     // Other
-    static Visualisation visualisation;
-    private static final Window sim = new Window();
+    Visualisation v;
 
-    public static void main(String[] args) {
-        size[0] = 50;
-        size[1] = 50;
+    public Simulation(int sw, int sh,int ps, int si, int ic, int id, int iD, int mr) {
+        super();
+
+        size[0] = sw;
+        size[1] = sh;
+        populationSize = ps;
+        startingInfected = si;
+        infectChance = ic;
+        infectDuration = id;
+        immunityDuration = iD;
+        maxRuntime = mr;
 
 
-
-        visualisation = new Visualisation();
+        v = new Visualisation(this);
         initializeBoard();
 
         // Initialize population
         for (int i = 0; i < populationSize; i++) {
-            population.add(new Subject());
+            population.add(new Subject(this));
         }
 
         // Set initial infected
         for (int i = 0; i < startingInfected; i++) {
             population.get(i).startInfected();
         }
-
-        // Main simulation loop
-        while (infected > 0 && infected < populationSize - immune && round != maxRuntime ) {
-            simulateRound();
-            round++;
-
-            try {
-                TimeUnit.MILLISECONDS.sleep(10); // Change to user preference
-            } catch (InterruptedException ignored) {}
-        }
     }
 
     // Loads all positions into first frame of
-    private static void initializeBoard() {
+    private void initializeBoard() {
         board = new ArrayList[size[0]][size[1]];
         for (int i = 0; i < size[0]; i++) {
             for (int j = 0; j < size[1]; j++) {
@@ -71,7 +61,7 @@ public class Simulation {
         }
     }
 
-    public static void simulateRound() {
+    public void simulateRound() {
         // Clear the board
         for (int i = 0; i < size[0]; i++) {
             for (int j = 0; j < size[1]; j++) {
@@ -96,13 +86,13 @@ public class Simulation {
         }
 
         // Update visualization
-        Visualisation.pixelQueue.clear();
-        Visualisation.visualiseRound();
-        Visualisation.simContentPane.repaint();
-        Visualisation.statsContentPane.repaint();
+        v.pixelQueue.clear();
+        v.visualiseRound();
+        v.simContentPane.repaint();
+        v.statsContentPane.repaint();
     }
 
-    public static void addInfection(int[] location, Subject subject, Subject source) {
+    public void addInfection(int[] location, Subject subject, Subject source) {
         if (subject.infected) return; // Prevent double infection
 
         Infection infection = new Infection(location.clone(), round, subject, source);
@@ -117,7 +107,7 @@ public class Simulation {
         infected++;
     }
 
-    public static void simulateContact(ArrayList<Subject> subjects) {
+    public void simulateContact(ArrayList<Subject> subjects) {
         ArrayList<Subject> infectedSubjects = new ArrayList<>();
         ArrayList<Subject> susceptible = new ArrayList<>();
 
@@ -137,6 +127,16 @@ public class Simulation {
                     subject.infect(source);
                 }
             }
+        }
+    }
+
+    @Override
+    public void run() {
+        System.out.println(round != maxRuntime);
+        while (infected > 0 && infected < populationSize - immune && round != maxRuntime) {
+            System.out.println(round);
+            simulateRound();
+            round++;
         }
     }
 }
