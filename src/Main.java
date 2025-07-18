@@ -173,20 +173,20 @@ public class Main {
         if (pass) {
             Simulation sim = new Simulation(st[0], st[1], st[2], st[3], st[4], st[5], st[6], st[7], st[8], textFields[9].getText());
             simulations.add(sim);
-            comboBox.add(textFields[9].getText(), new Component(){
-                Simulation simulation = sim;
-            });
+            comboBox.add(textFields[9].getText(), new SimComponent(sim));
             sim.start();
         }
     }
 
     private static void simulationAction() {
         boolean pass = true;
+        Object simObj;
         Simulation sim;
         String act = null;
 
         try {
-            sim = (Simulation) comboBox.getSelectedItem().simulation;
+            simObj = comboBox.getSelectedItem();
+            sim
         } catch (ClassCastException ignored) {
             comboBox.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Select Simulation"));
             pass = false;
