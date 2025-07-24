@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
 import java.awt.image.BufferedImage;
 import java.lang.Float;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
 public class Visualisation {
@@ -25,25 +26,32 @@ public class Visualisation {
     float uninfectedHeight;
     float immuneHeight;
 
+    JFrame statisticsPane;
+    JFrame simulationPane;
+    NumberFormat percentRounder = NumberFormat.getNumberInstance();
 
     public Visualisation(Simulation s) {
+
         this.s = s;
 
-        JFrame statisticsPane = new JFrame("AS91907 | Statistics");
-        statisticsPane.setSize(1250, 500);
-        JFrame simulationPane = new JFrame("AS91907 | Simulation");
+        statisticsPane = new JFrame("AS91907 | Statistics");
+        statisticsPane.setSize(1050, 370);
+        simulationPane = new JFrame("AS91907 | Simulation");
         simulationPane.setTitle("AS91907 | Virus Simulator");
         simulationPane.setLayout(new GridBagLayout());
         simulationPane.setResizable(false);
+        statisticsPane.setResizable(false);
 
         simulationPane.setContentPane(simContentPane);
         statisticsPane.setContentPane(statsContentPane);
 
-        simContentPane.setPreferredSize(new Dimension(s.size[0] * 10, s.size[1] * 10));
+        simContentPane.setPreferredSize(new Dimension(s.size[0] * 3, s.size[1] * 3));
         simulationPane.pack();
 
         simulationPane.setVisible(true);
         statisticsPane.setVisible(true);
+
+        percentRounder.setMaximumFractionDigits(2);
     }
 
     public Container simContentPane = new Container() {
@@ -57,11 +65,14 @@ public class Visualisation {
         offScreenImage = new BufferedImage(simContentPane.getWidth(), simContentPane.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = (Graphics2D) offScreenImage.getGraphics();
 
-        g2.setColor(Color.BLACK);
+
+
+        g2.setColor(Color.black);
+        g2.fillRect(0, 0, s.size[0] * 3, s.size[1] * 3);
 
         for(Pixel pixel : pixelQueue) {
             g2.setColor(pixel.colour);
-            g2.fillRect(pixel.x * 10, pixel.y * 10, 10, 10);
+            g2.fillRect(pixel.x * 3, pixel.y * 3, 3, 3);
         }
     }
 
@@ -72,7 +83,7 @@ public class Visualisation {
             int total = nums[0] + nums[1] + nums[2];
 
             if (total != 0) {
-                fillArc(360, Color.darkGray, g);
+                fillArc(360, Color.blue, g);
                 fillArc(Math.round((double) nums[0] / total * 360), Color.red, g);
                 fillArc(Math.round((double) nums[1] / total * 360), Color.green, g);
 
@@ -89,7 +100,7 @@ public class Visualisation {
                 int[] immuneTopY = new int[infectedGraphValues.size()];
 
                 for (int i = 0; i < infectedGraphValues.size(); i++) {
-                    xPoints[i] = 450 + (i * 10);
+                    xPoints[i] = 340 + (i * 10);
                     // Stack from bottom to top: immune (bottom), uninfected (middle), infected (top)
                     immuneTopY[i] = 300 - immuneGraphValues.get(i)[1][0].intValue();
                     uninfectedTopY[i] = immuneTopY[i] - uninfectedGraphValues.get(i)[1][0].intValue();
@@ -97,12 +108,12 @@ public class Visualisation {
                 }
 
                 // Draw immune area (bottom layer - grey)
-                g.setColor(Color.darkGray);
+                g.setColor(Color.blue);
                 int[] immuneXPoints = new int[immuneGraphValues.size() * 2 + 2];
                 int[] immuneYPoints = new int[immuneGraphValues.size() * 2 + 2];
 
                 // First point at bottom left
-                immuneXPoints[0] = 450;
+                immuneXPoints[0] = 340;
                 immuneYPoints[0] = 300;
 
                 // Draw top edge
@@ -112,13 +123,17 @@ public class Visualisation {
                 }
 
                 // Close to bottom right
-                immuneXPoints[immuneGraphValues.size() + 1] = 450 + (infectedGraphValues.size() - 1) * 10;
+                immuneXPoints[immuneGraphValues.size() + 1] = 340 + (infectedGraphValues.size() - 1) * 10;
                 immuneYPoints[immuneGraphValues.size() + 1] = 300;
 
                 // Draw bottom edge back to start
                 for (int i = 0; i < immuneGraphValues.size(); i++) {
-                    immuneXPoints[immuneGraphValues.size() + 2 + i] = 450 + (immuneGraphValues.size() - 1 - i) * 10;
+                    immuneXPoints[immuneGraphValues.size() + 2 + i] = 340 + (immuneGraphValues.size() - 1 - i) * 10;
                     immuneYPoints[immuneGraphValues.size() + 2 + i] = 300;
+                }
+
+                for (int i = 0; i < immuneYPoints.length; i++) {
+                    immuneYPoints[i] += 15;
                 }
 
                 g.fillPolygon(immuneXPoints, immuneYPoints, immuneGraphValues.size() * 2 + 2);
@@ -129,7 +144,7 @@ public class Visualisation {
                 int[] uninfectedYPoints = new int[uninfectedGraphValues.size() * 2 + 2];
 
                 // Start at bottom left of this layer
-                uninfectedXPoints[0] = 450;
+                uninfectedXPoints[0] = 340;
                 uninfectedYPoints[0] = immuneTopY[0];
 
                 // Draw top edge
@@ -139,13 +154,17 @@ public class Visualisation {
                 }
 
                 // Close to bottom right of this layer
-                uninfectedXPoints[uninfectedGraphValues.size() + 1] = 450 + (uninfectedGraphValues.size() - 1) * 10;
+                uninfectedXPoints[uninfectedGraphValues.size() + 1] = 340 + (uninfectedGraphValues.size() - 1) * 10;
                 uninfectedYPoints[uninfectedGraphValues.size() + 1] = immuneTopY[immuneGraphValues.size() - 1];
 
                 // Draw bottom edge back
                 for (int i = 0; i < uninfectedGraphValues.size(); i++) {
-                    uninfectedXPoints[uninfectedGraphValues.size() + 2 + i] = 450 + (uninfectedGraphValues.size() - 1 - i) * 10;
+                    uninfectedXPoints[uninfectedGraphValues.size() + 2 + i] = 340 + (uninfectedGraphValues.size() - 1 - i) * 10;
                     uninfectedYPoints[uninfectedGraphValues.size() + 2 + i] = immuneTopY[uninfectedGraphValues.size() - 1 - i];
+                }
+
+                for (int i = 0; i < uninfectedYPoints.length; i++) {
+                    uninfectedYPoints[i] += 15;
                 }
 
                 g.fillPolygon(uninfectedXPoints, uninfectedYPoints, uninfectedGraphValues.size() * 2 + 2);
@@ -156,7 +175,7 @@ public class Visualisation {
                 int[] infectedYPoints = new int[infectedGraphValues.size() * 2 + 2];
 
                 // Start at top left
-                infectedXPoints[0] = 450;
+                infectedXPoints[0] = 340;
                 infectedYPoints[0] = 0;
 
                 // Draw across top
@@ -166,13 +185,17 @@ public class Visualisation {
                 }
 
                 // Close to top right
-                infectedXPoints[infectedGraphValues.size() + 1] = 450 + (infectedGraphValues.size() - 1) * 10;
+                infectedXPoints[infectedGraphValues.size() + 1] = 340 + (infectedGraphValues.size() - 1) * 10;
                 infectedYPoints[infectedGraphValues.size() + 1] = 0;
 
                 // Draw bottom edge (top of uninfected layer)
                 for (int i = 0; i < infectedGraphValues.size(); i++) {
-                    infectedXPoints[infectedGraphValues.size() + 2 + i] = 450 + (infectedGraphValues.size() - 1 - i) * 10;
+                    infectedXPoints[infectedGraphValues.size() + 2 + i] = 340 + (infectedGraphValues.size() - 1 - i) * 10;
                     infectedYPoints[infectedGraphValues.size() + 2 + i] = uninfectedTopY[infectedGraphValues.size() - 1 - i];
+                }
+
+                for (int i = 0; i < infectedYPoints.length; i++) {
+                    infectedYPoints[i] += 15;
                 }
 
                 g.fillPolygon(infectedXPoints, infectedYPoints, infectedGraphValues.size() * 2 + 2);
@@ -180,25 +203,44 @@ public class Visualisation {
 
 
             // Add legend
-            g.setColor(Color.BLACK);
-            g.drawString("Legend:", 950, 50);
+            g.setColor(Color.black);
+            g.drawString("Legend:", 850, 50);
 
             g.setColor(Color.red);
-            g.fillRect(950, 60, 20, 15);
-            g.setColor(Color.BLACK);
-            g.drawString("Infected", 980, 72);
+            g.fillRect(850, 60, 20, 20);
+            g.setColor(Color.black);
+            g.drawRect(850, 60, 20, 20);
+            g.drawString("Infected", 880, 75);
 
             g.setColor(Color.green);
-            g.fillRect(950, 80, 20, 15);
-            g.setColor(Color.BLACK);
-            g.drawString("Susceptible", 980, 92);
+            g.fillRect(850, 85, 20, 20);
+            g.setColor(Color.black);
+            g.drawRect(850, 85, 20, 20);
+            g.drawString("Susceptible", 880, 100);
 
-            g.setColor(Color.darkGray);
-            g.fillRect(950, 100, 20, 15);
-            g.setColor(Color.BLACK);
-            g.drawString("Immune", 980, 112);
+            g.setColor(Color.blue);
+            g.fillRect(850, 110, 20, 20);
+            g.setColor(Color.black);
+            g.drawRect(850, 110, 20, 20);
+            g.drawString("Immune", 880, 125);
 
-            g.drawString("Round: " + s.round, 980, 132);
+            g.drawString("Round: " + s.round, 850, 155);
+            g.drawString("Infected Count: " + nums[0], 850, 185);
+            g.drawString("Susceptible Count: " + nums[1], 850, 200);
+            g.drawString("Immune Count: " + nums[2], 850, 215);
+
+            int t = nums[0] + nums[1] + nums[2];
+            double[] p = new double[]{
+                100.0 * nums[0] / t,
+                100.0 * nums[1] / t,
+                100.0 * nums[2] / t,
+            };
+
+            g.drawString("Infected Percent: " + percentRounder.format(p[0]) + "%", 850, 245);
+            g.drawString("Susceptible Percent: " + percentRounder.format(p[1]) + "%", 850, 260);
+            g.drawString("Immune Percent: " + percentRounder.format(p[2]) + "%", 850, 275);
+
+            g.drawRect(340, 15, 490, 300);
         }
 
         private void fillArc(float radian, Color colour, Graphics g) {
@@ -237,15 +279,13 @@ public class Visualisation {
                 } else if (m > 0) {
                     pixelQueue.add(new Pixel(i, j, Color.green));
                 } else if (n > 0){
-                    pixelQueue.add(new Pixel(i, j, Color.darkGray));
+                    pixelQueue.add(new Pixel(i, j, Color.blue));
                 }
             }
         }
         render();
         nums = totalCount;
         renderHistogram(totalCount);
-
-        System.out.println(0);
     }
 
     private record Pixel(int x, int y, Color colour) {}

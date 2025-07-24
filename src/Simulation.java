@@ -26,7 +26,7 @@ public class Simulation extends Thread{
     public ArrayList<Subject>[][] board;
 
     // Other
-    Visualisation v;
+    final Visualisation v;
     public Boolean run = true;
 
     public Simulation(int sw, int sh,int ps, int si, int ic, int id, int iD, int mr, int fd, String n) {
@@ -95,7 +95,6 @@ public class Simulation extends Thread{
         // Update visualization
         v.pixelQueue.clear();
         v.visualiseRound();
-        System.out.println(1);
         v.simContentPane.repaint();
         v.statsContentPane.repaint();
     }
@@ -137,7 +136,7 @@ public class Simulation extends Thread{
         while (infected > 0 && infected < populationSize - immune && round != maxRuntime && run) {
             round++;
             simulateRound();
-            try {Thread.sleep(6 + frameDelay);} catch (InterruptedException ignored) {}
+            try {Thread.sleep(frameDelay);} catch (InterruptedException ignored) {}
         }
     }
 }
