@@ -14,8 +14,10 @@ public class Main {
     private static JComboBox comboBox2;
     static JTextField[] textFields;
 
+
+    static Border blackLine = BorderFactory.createLineBorder(Color.black);
+
     public static void main(String[] args) {
-        Border blackLine = BorderFactory.createLineBorder(Color.black);
         textFields = new JTextField[13];
 
         settings.setLayout(new GridLayout(7, 2));
@@ -78,7 +80,7 @@ public class Main {
         comboBox.setBorder(BorderFactory.createTitledBorder(blackLine, "Select Simulation"));
         settings.add(comboBox);
 
-        comboBox2 = new JComboBox(new String[]{"Create New", "Open", "Close", "Stop"});
+        comboBox2 = new JComboBox(new String[]{"Create New", "Stop", "Close", "Download"});
         comboBox2.setBorder(BorderFactory.createTitledBorder(blackLine, "Select Action"));
         settings.add(comboBox2);
 
@@ -197,10 +199,10 @@ public class Main {
             pass = false;
         }
 
-       if (act == "Create New") {
-           runSimulation();
-           return;
-       }
+        if (act == "Create New") {
+            runSimulation();
+            return;
+        }
 
         try {
             sim = simulations.get(comboBox.getSelectedIndex());
@@ -214,19 +216,15 @@ public class Main {
         try {
             if (pass) {
                 switch (act) {
-                    case "Open" -> {
-                        Visualisation vis = new Visualisation(sim);
-                        vis.visualiseRound();
-                    }
+                    case "Stop" -> sim.run = false;
+
                     case "Close" -> {
                         sim.run = false;
                         sim.v.statisticsPane.dispose();
                         sim.v.simulationPane.dispose();
-
-                        showTotals(sim);
                     }
 
-                    case "Stop" -> sim.run = false;
+                    case "Download" -> download(sim);
 
                     default -> {}
                 }
@@ -235,27 +233,125 @@ public class Main {
     }
 
 
-    public static void showTotals(Simulation sim) {
+    public static void download(Simulation sim) {
         JFileChooser chooser = new JFileChooser();
+        String ls = System.lineSeparator();
+        String act = null;
+        Subject subject = null;
+        boolean pass = true;
+
         chooser.setSelectedFile(new File(sim.name + ".csv"));
 
-        JFrame frame = new JFrame();
+        JFrame frame = new JFrame("Download");
+        frame.setLayout(new GridLayout(1, 3));
+        frame.setSize(10, 5);
+
+        JComboBox comboBox3 = new JComboBox(new String[]{"Statistics", "Infections", "Subjects", "Target Subject"});
+        JComboBox comboBox4 = new JComboBox();
+
+        for (Subject s : sim.population) {
+            comboBox4.addItem(s);
+        }
+
+        comboBox3.setBorder(BorderFactory.createTitledBorder(blackLine, "Select Type"));
+        comboBox3.setBorder(BorderFactory.createTitledBorder(blackLine, "Select Subject"));
+
+        try {
+            act = (String) comboBox3.getSelectedItem();
+        } catch (Exception ignored) {
+            comboBox2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Select Type"));
+            pass = false;
+        }
+
+        if (act == "Target Subject") {
+            try {
+                subject = (Subject) comboBox4.getSelectedItem();
+            } catch (Exception ignored) {
+                comboBox4.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Select Subject"));
+                pass = false;
+            }
+        }
+
         JButton b = new JButton("Download");
+        boolean finalPass = pass;
+        String finalAct = act;
+        Subject finalSubject = subject;
         b.addActionListener(l -> {
-            if (chooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
-                try {
-                    FileWriter fw = new FileWriter(chooser.getSelectedFile());
-
-                    String ls = System.lineSeparator();
-
-                    fw.write(sim.name + ls);
-
-                    for (Infection i : sim.infections) {
-                        fw.append
+            if (finalPass && chooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
+                FileWriter fw = null;
+                try {fw = new FileWriter(chooser.getSelectedFile());} catch (Exception ignored) {}
+                switch (finalAct) {
+                    case "Statistics" -> {
+                        try {
+                            fw.write(sim.name + " Statistics" + ls);
+                            fw.append("Total Infections, Final Infected, Final Susceptible, Final Immune, Final Round" + ls);
+                            fw.append(sim.infections.size() + "," + sim.infected + "," + (sim.populationSize - sim.infected - sim.immune) + "," + sim.immune + "," + sim.round);
+                        } catch (Exception ignored) {}
                     }
-                } catch (Exception ignored) {
+
+                    case "Infections" -> {
+                        try {
+                            fw.write(sim.name + " Infections" + ls);
+                            fw.append("ID, X Pos, Y Pos, Round, Subject, Source" + ls);
+
+                            for (Infection i : sim.infections) {
+                                fw.append(i + "," + i.location()[0] +","+ i.location()[1] + "," + i.round() + "," + i.subject() + "," + i.source() + ls);
+                            }
+                        } catch (Exception ignored) {}
+                    }
+
+                    case "Subjects" -> {
+                        try {
+                            fw.write(sim.name + " Subjects" + ls);
+
+                            for (Subject s : sim.population) {
+                                fw.append(s + ls);
+                            }
+                        } catch (Exception ignored) {}
+                    }
+
+                    case "Target Subject" -> {
+                        try {
+                            Subject fs = finalSubject;
+                            fw.write(sim.name + " : Subject " + finalSubject + ls);
+                            fw.append("X Pos, Y Pos, State, Times Infected, Number Infected, Infections, Infections Given" + ls);
+                            fw.append(fs.location[0] + "," + fs.location[1] + "," + (fs.infectable ? "Immune" : (fs.infected ? "Infected" : "Susceptible")) + "," + fs.infectCount.size() + "," + fs.infectionCount.size() + "," + fs.infectCount.getFirst() + "," + fs.infectionCount.getFirst() + ls);
+
+                            if (fs.infectCount.size() >= fs.infectionCount.size()) {
+                                for (int i = 1; i < fs.infectCount.size(); i++) {
+                                    fw.append(",,,,," + fs.infectCount.get(i) + "," + fs.infectionCount.get(i) + ls);
+                                }
+                            } else {
+                                for (int i = 1; i < fs.infectionCount.size(); i++) {
+                                    fw.append(",,,,," + fs.infectCount.get(i) + "," + fs.infectionCount.get(i) + ls);
+                                }
+                            }
+                        } catch (Exception ignored) {}
+                    }
+
+                    case "Target Infection" -> {
+
+                    }
                 }
+
+                try {
+                    fw.flush();
+                    fw.close();
+                    frame.dispose();
+                } catch (Exception ignored) {}
             }
         });
+
+
+
+
+        frame.add(b);
+        frame.add(comboBox3);
+        frame.add(comboBox4);
+
+        frame.setResizable(false);
+        frame.pack();
+        frame.setVisible(true);
+
     }
 }
