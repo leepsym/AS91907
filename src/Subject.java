@@ -22,14 +22,14 @@ public class Subject {
 
     public void handleInfection() {
         if (infected && !infectCount.isEmpty()) {
-            if (s.round >= infectCount.getLast().round() + s.infectDuration) {
+            if (s.round >= infectCount.getLast().round + s.infectDuration) {
                 infected = false;
                 s.infected--;
                 infectable = false;
                 s.immune++;
             }
         } else if (!infectable && !infectCount.isEmpty()) {
-            if (s.round >= infectCount.getLast().round() + s.infectDuration + s.immunityDuration) {
+            if (s.round >= infectCount.getLast().round + s.infectDuration + s.immunityDuration) {
                 infectable = true;
                 s.immune--;
             }
