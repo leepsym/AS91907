@@ -187,12 +187,12 @@ public class Simulation extends Thread{
 
         // Pre-calculate values for performance optimization
         int infectedSize = infectedCache.size();
+        int infectThreshold = (int) Math.round((1 - Math.pow(1 - ((double) infectChance / 100), infectedSize)) * 100);
 
-        // Calculate combined infection probability from all infected subjects
-        int infectionThreshold = (int) Math.floor((1 - Math.pow(1 - ((double) infectChance / 100), infectedSize)) * 100);
-
+        // Test each susceptible subject for potential infection
         for (Subject subject : susceptibleCache) {
-            if (random.nextInt(100) < infectionThreshold) {
+            if (random.nextInt(100) < infectThreshold) {
+                // Select random infected subject as source of transmission
                 Subject source = infectedCache.get(random.nextInt(infectedSize));
                 subject.infect(source);
             }
