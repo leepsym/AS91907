@@ -191,10 +191,6 @@ public class Simulation extends Thread{
         // Calculate combined infection probability from all infected subjects
         int infectionThreshold = (int) Math.floor((1 - Math.pow(1 - ((double) infectChance / 100), infectedSize)) * 100);
 
-        System.out.println("Infected size: " + infectedSize);
-        System.out.println("Infection threshold: " + infectionThreshold);
-        System.out.println("Susceptible count: " + susceptibleCache.size());
-
         for (Subject subject : susceptibleCache) {
             if (random.nextInt(100) < infectionThreshold) {
                 Subject source = infectedCache.get(random.nextInt(infectedSize));
