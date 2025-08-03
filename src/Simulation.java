@@ -221,9 +221,8 @@ public class Simulation extends Thread{
             if (frameDelay > 0) {
                 try {
                     Thread.sleep(frameDelay);
-                } catch (InterruptedException e) {
+                } catch (Exception ignored) {
                     Thread.currentThread().interrupt();
-                    break; // Exit gracefully if thread is interrupted
                 }
             }
         }

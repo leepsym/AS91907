@@ -10,6 +10,8 @@ import java.awt.GridLayout;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.zip.DataFormatException;
 
 /**
  * Main class that provides the GUI interface for configuring and managing virus simulations.
@@ -143,6 +145,7 @@ public class Main {
 
         // Validate simulation height input
         try {
+            if (Integer.parseInt(textFields[0].getText()) <= 0) throw new Exception("negative");
             st[0] = Integer.parseInt(textFields[0].getText());
             textFields[0].setBorder(BorderFactory.createTitledBorder(blackLine, "Simulation Height"));
         } catch (Exception ignored) {
@@ -152,6 +155,7 @@ public class Main {
 
         // Validate simulation width input
         try {
+            if (Integer.parseInt(textFields[1].getText()) <= 0) throw new Exception("negative");
             st[1] = Integer.parseInt(textFields[1].getText());
             textFields[1].setBorder(BorderFactory.createTitledBorder(blackLine, "Simulation Width"));
         } catch (Exception ignored) {
@@ -161,6 +165,7 @@ public class Main {
 
         // Validate population size input
         try {
+            if (Integer.parseInt(textFields[2].getText()) <= 0) throw new Exception("negative");
             st[2] = Integer.parseInt(textFields[2].getText());
             textFields[2].setBorder(BorderFactory.createTitledBorder(blackLine, "Population"));
         } catch (Exception ignored) {
@@ -170,6 +175,7 @@ public class Main {
 
         // Validate starting infected count input
         try {
+            if (Integer.parseInt(textFields[3].getText()) <= 0) throw new Exception("negative");
             st[3] = Integer.parseInt(textFields[3].getText());
             textFields[3].setBorder(BorderFactory.createTitledBorder(blackLine, "Starting Infected"));
         } catch (Exception ignored) {
@@ -179,6 +185,7 @@ public class Main {
 
         // Validate infection chance percentage input
         try {
+            if (Integer.parseInt(textFields[4].getText()) <= 0) throw new Exception("negative");
             st[4] = Integer.parseInt(textFields[4].getText());
             textFields[4].setBorder(BorderFactory.createTitledBorder(blackLine, "Chance of infection (%)"));
         } catch (Exception ignored) {
@@ -188,6 +195,7 @@ public class Main {
 
         // Validate infection duration input
         try {
+            if (Integer.parseInt(textFields[5].getText()) <= 0) throw new Exception("negative");
             st[5] = Integer.parseInt(textFields[5].getText());
             textFields[5].setBorder(BorderFactory.createTitledBorder(blackLine, "Infection Duration"));
         } catch (Exception ignored) {
@@ -197,6 +205,7 @@ public class Main {
 
         // Validate immunity duration input
         try {
+            if (Integer.parseInt(textFields[6].getText()) <= 0) throw new Exception("negative");
             st[6] = Integer.parseInt(textFields[6].getText());
             textFields[6].setBorder(BorderFactory.createTitledBorder(blackLine, "Immunity Duration"));
         } catch (Exception ignored) {
@@ -215,6 +224,7 @@ public class Main {
 
         // Validate frame delay input
         try {
+            if (Integer.parseInt(textFields[8].getText()) < 0) throw new Exception("negative");
             st[8] = Integer.parseInt(textFields[8].getText());
             textFields[8].setBorder(BorderFactory.createTitledBorder(blackLine, "Frame Delay (ms)"));
         } catch (Exception ignored) {
@@ -337,6 +347,7 @@ public class Main {
 
             // Get selected data type
             try {
+                if ((int) comboBox3.getSelectedItem() <= 0) throw new Exception("negative");
                 act = (String) comboBox3.getSelectedItem();
             } catch (Exception ignored) {
                 comboBox2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Select Type"));
@@ -346,6 +357,7 @@ public class Main {
             // If target subject is selected, get the specific subject
             if (act == "Target Subject") {
                 try {
+                    if ((int) comboBox4.getSelectedItem() <= 0) throw new Exception("negative");
                     subject = (Subject) comboBox4.getSelectedItem();
                 } catch (Exception ignored) {
                     comboBox4.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Select Subject"));
