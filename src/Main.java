@@ -335,7 +335,7 @@ public class Main {
         }
 
         comboBox3.setBorder(BorderFactory.createTitledBorder(blackLine, "Select Type"));
-        comboBox3.setBorder(BorderFactory.createTitledBorder(blackLine, "Select Subject"));
+        comboBox4.setBorder(BorderFactory.createTitledBorder(blackLine, "Select Subject"));
 
         // Create download button with action handler
         JButton b = new JButton("Download");
@@ -347,17 +347,15 @@ public class Main {
 
             // Get selected data type
             try {
-                if ((int) comboBox3.getSelectedItem() <= 0) throw new Exception("negative");
                 act = (String) comboBox3.getSelectedItem();
             } catch (Exception ignored) {
-                comboBox2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Select Type"));
+                comboBox3.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Select Type"));
                 pass = false;
             }
 
             // If target subject is selected, get the specific subject
             if (act == "Target Subject") {
                 try {
-                    if ((int) comboBox4.getSelectedItem() <= 0) throw new Exception("negative");
                     subject = (Subject) comboBox4.getSelectedItem();
                 } catch (Exception ignored) {
                     comboBox4.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.RED), "Select Subject"));
